@@ -1,0 +1,568 @@
+HTML
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Macro Asset Picker & Allocation Engine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#080b11',
+              card: '#0f172a',
+              border: '#1e293b',
+              accent: '#38bdf8'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Pretendard", sans-serif; }
+    .badge-rank-1 { background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.4); }
+    .badge-rank-2 { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.4); }
+    .badge-rank-3 { background: rgba(180, 83, 9, 0.15); color: #fdba74; border: 1px solid rgba(180, 83, 9, 0.4); }
+  </style>
+</head>
+<body class="bg-[#080b11] text-slate-200 min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="border-b border-[#1e293b] bg-[#0c1322]/90 backdrop-blur sticky top-0 z-50 px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="p-2 bg-sky-500/10 text-sky-400 rounded-lg border border-sky-500/20">
+        <i data-lucide="target" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <h1 class="text-sm font-bold text-white flex items-center gap-2">
+          MACRO ASSET PICKER <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800">Dynamic Multi-Asset Engine</span>
+        </h1>
+        <p class="text-[11px] text-slate-400">성장·물가·통화 환경에 따른 세부 주식스타일, 채권, 귀금속, 원자재, 통화 탑픽 추천</p>
+      </div>
+    </div>
+
+    <!-- Active Regime Display -->
+    <div class="flex items-center gap-3">
+      <div class="text-right hidden sm:block">
+        <div class="text-[10px] text-slate-500">진단된 매크로 사이클</div>
+        <div id="header-regime-title" class="text-xs font-bold text-amber-400">스태그플레이션 (물가↑ 경기↓)</div>
+      </div>
+      <div id="header-regime-pill" class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+        고물가 수축 방어 모드
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Body -->
+  <main class="flex-1 p-5 grid grid-cols-12 gap-5 max-w-[1920px] mx-auto w-full">
+
+    <!-- Left: Macro Cockpit & Preset Controller (3 Cols) -->
+    <div class="col-span-12 lg:col-span-3 space-y-4">
+      
+      <!-- Regime Selector Presets -->
+      <div class="bg-[#0f172a] border border-[#1e293b] rounded-xl p-4 shadow-sm">
+        <h2 class="text-xs font-bold text-slate-300 mb-3 flex items-center gap-1.5">
+          <i data-lucide="play-circle" class="w-4 h-4 text-sky-400"></i> 매크로 국면 원클릭 설정
+        </h2>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <button onclick="setRegimePreset('recovery')" id="btn-pre-recovery" class="p-2.5 rounded border border-slate-800 bg-[#080b11] hover:border-sky-500 text-left transition">
+            <div class="font-bold text-emerald-400">1. 골디락스 회복</div>
+            <div class="text-[10px] text-slate-400">경기 반등 / 저물가</div>
+          </button>
+          <button onclick="setRegimePreset('overheat')" id="btn-pre-overheat" class="p-2.5 rounded border border-slate-800 bg-[#080b11] hover:border-sky-500 text-left transition">
+            <div class="font-bold text-red-400">2. 경기 과열</div>
+            <div class="text-[10px] text-slate-400">경기 호황 / 고물가</div>
+          </button>
+          <button onclick="setRegimePreset('stagflation')" id="btn-pre-stagflation" class="p-2.5 rounded border border-amber-500 bg-amber-500/10 text-left transition">
+            <div class="font-bold text-amber-400">3. 스태그플레이션</div>
+            <div class="text-[10px] text-slate-400">경기 침체 / 고물가</div>
+          </button>
+          <button onclick="setRegimePreset('recession')" id="btn-pre-recession" class="p-2.5 rounded border border-slate-800 bg-[#080b11] hover:border-sky-500 text-left transition">
+            <div class="font-bold text-blue-400">4. 경기 수축/침체</div>
+            <div class="text-[10px] text-slate-400">경기 둔화 / 디플레</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Macro Sliders Detail Adjustment -->
+      <div class="bg-[#0f172a] border border-[#1e293b] rounded-xl p-4 shadow-sm space-y-4">
+        <div class="flex items-center justify-between border-b border-[#1e293b] pb-2">
+          <h2 class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+            <i data-lucide="sliders" class="w-4 h-4 text-emerald-400"></i> 미세 매크로 변수 조정
+          </h2>
+          <span class="text-[10px] text-slate-500">실시간 연산</span>
+        </div>
+
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-slate-400">경제 성장 (GDP/수출/소비)</span>
+            <span id="txt-growth" class="font-bold text-amber-400">수축 (-1.5%)</span>
+          </div>
+          <input type="range" id="rng-growth" min="-5" max="5" value="-2" step="1" oninput="onCustomSliderChange()" class="w-full h-1 bg-slate-800 rounded accent-sky-400">
+        </div>
+
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-slate-400">물가 압력 (CPI/원자재가)</span>
+            <span id="txt-cpi" class="font-bold text-red-400">고물가 (+4.2%)</span>
+          </div>
+          <input type="range" id="rng-cpi" min="-5" max="5" value="3" step="1" oninput="onCustomSliderChange()" class="w-full h-1 bg-slate-800 rounded accent-red-400">
+        </div>
+
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-slate-400">금리/유동성 (통화 긴축도)</span>
+            <span id="txt-rates" class="font-bold text-slate-200">고금리 유지</span>
+          </div>
+          <select id="sel-rates" onchange="onCustomSliderChange()" class="w-full bg-[#080b11] border border-[#1e293b] rounded p-2 text-xs text-slate-300">
+            <option value="hiking">긴축 및 금리 인상</option>
+            <option value="high" selected>고금리 동결 유지</option>
+            <option value="cutting">금리 인하 사이클 진입</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Regime Summary Box -->
+      <div class="bg-[#0f172a] border border-[#1e293b] rounded-xl p-4 shadow-sm">
+        <h3 class="text-xs font-bold text-slate-300 mb-2 flex items-center gap-1.5">
+          <i data-lucide="info" class="w-4 h-4 text-blue-400"></i> 현 국면 운용 전략 코멘트
+        </h3>
+        <p id="regime-commentary" class="text-xs text-slate-400 leading-relaxed">
+          물가는 고공행진하고 기업 이익은 꺾이는 구간입니다. 밸류에이션이 높은 성장주나 시클리컬 제조업은 하향 압력을 받으며, 현금흐름이 탁월한 <strong>퀄리티/방어주</strong>와 실물 인플레이션 헷지 자산인 <strong>금</strong>, 그리고 <strong>달러 초단기채</strong>가 가장 확실한 피난처가 됩니다.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Center: Detailed Asset Class Pickers & Comparison Cards (5 Cols) -->
+    <div class="col-span-12 lg:col-span-5 space-y-4">
+      
+      <!-- Top Pick Podium (Top 3 Assets for Current Regime) -->
+      <div class="bg-[#0f172a] border border-[#1e293b] rounded-xl p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-3 border-b border-[#1e293b] pb-2">
+          <h2 class="text-xs font-bold text-slate-200 flex items-center gap-2">
+            <i data-lucide="crown" class="w-4 h-4 text-amber-400"></i> 현 국면 원픽(Top 3) 추천 상품
+          </h2>
+          <span class="text-[10px] text-slate-400">최대 샤프지수 기대 자산</span>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 text-center" id="top-three-container">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+
+      <!-- Granular Asset Class Decision Matrix -->
+      <div class="bg-[#0f172a] border border-[#1e293b] rounded-xl p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-3 border-b border-[#1e293b] pb-2">
+          <h2 class="text-xs font-bold text-slate-200 flex items-center gap-2">
+            <i data-lucide="check-check" class="w-4 h-4 text-emerald-400"></i> 세부 카테고리별 유리한 상품 판정
+          </h2>
+          <span class="text-[10px] text-slate-400">1:1 맞대결 승자</span>
+        </div>
+
+        <div class="space-y-2.5 text-xs" id="sub-asset-matchups">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+
+      <!-- Asset Score Ranking Table -->
+      <div class="bg-[#0f172a] border border-[#1e293b] rounded-xl p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-xs font-bold text-slate-200 flex items-center gap-2">
+            <i data-lucide="bar-chart-2" class="w-4 h-4 text-sky-400"></i> 전 자산군 매력도 스코어보드 (10점 만점)
+          </h2>
+        </div>
+        <div class="space-y-1.5" id="asset-score-bars">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right: Optimal Portfolio Mix & Concrete Action Plan (4 Cols) -->
+    <div class="col-span-12 lg:col-span-4 space-y-4">
+
+      <!-- Recommended Portfolio Donut -->
+      <div class="bg-[#0f172a] border border-[#1e293b] rounded-xl p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-xs font-bold text-slate-200 flex items-center gap-2">
+            <i data-lucide="pie-chart" class="w-4 h-4 text-purple-400"></i> 맞춤형 배분 포트폴리오 (100%)
+          </h2>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300">최적 위험 분산</span>
+        </div>
+        
+        <div class="h-44 relative flex items-center justify-center my-2">
+          <canvas id="portfolioChart"></canvas>
+        </div>
+
+        <div class="space-y-1.5 text-xs" id="portfolio-weights-table">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+
+      <!-- Actionable ETF & Product Execution List -->
+      <div class="bg-[#0f172a] border border-[#1e293b] rounded-xl p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-3 border-b border-[#1e293b] pb-2">
+          <h2 class="text-xs font-bold text-slate-200 flex items-center gap-2">
+            <i data-lucide="shopping-bag" class="w-4 h-4 text-cyan-400"></i> 실전 매수 가능 ETF / 상품 매핑
+          </h2>
+          <span class="text-[10px] text-slate-400">국내상장 / 미국상장</span>
+        </div>
+
+        <div class="space-y-2 text-xs" id="etf-execution-list">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    // Asset Database Definition with historical behavior logic
+    const REGIME_MODELS = {
+      recovery: {
+        title: "경기 회복 국면 (Goldilocks)",
+        subtext: "경기 반등 ↑ | 물가 안정 ↓ | 완화적 통화정책",
+        badge: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+        commentary: "글로벌 교역 회복과 낮은 자본 비용으로 성장의 희소성이 높아집니다. 레버리지 효과가 큰 국내 수출 대형주, 고성장 테크주, 산업용 금속(구리)이 시장을 견인하며 달러화는 약세를 보이고 원화가 강세로 전환됩니다.",
+        top3: [
+          { rank: 1, name: "글로벌 성장주", tag: "미국 빅테크 / 한국 IT", why: "저금리 환경과 이익 턴어라운드" },
+          { rank: 2, name: "구리 (경기 금속)", tag: "산업용 원자재", why: "제조업 가동률 급등 수혜" },
+          { rank: 3, name: "한국 주식 (KOSPI)", tag: "시클리컬 수출주", why: "글로벌 교역 회복 탄력성" }
+        ],
+        matchups: [
+          { category: "주식 스타일", winner: "성장주 > 가치주 / 방어주", detail: "유동성 확장기에는 밸류에이션 확장이 가능한 고성장주가 압도적 우위." },
+          { category: "국내 vs 해외 주식", winner: "한국 주식(KOSPI) 우위", detail: "글로벌 경기 회복 시 베타(민감도)가 큰 한국 수출주가 S&P500을 아웃퍼폼." },
+          { category: "채권 포지셔닝", winner: "국내/미국 장기채 중립", detail: "금리 인하 종료 및 장기물 금리 반등 위험으로 단기/회사채가 유리." },
+          { category: "원자재 (금 vs 구리)", winner: "구리(닥터 코퍼) 압승", detail: "실물 수요 폭발로 구리가 안전자산인 금/은 대비 압도적 초과수익 달성." },
+          { category: "통화 (달러 vs 원화)", winner: "원화 강세 (달러 약세)", detail: "위험선호 심리(Risk-on)로 신흥국 통화 및 원화 절상 흐름." }
+        ],
+        scores: [
+          { name: "해외 성장주 (나스닥/테크)", score: 9.6, group: "equity" },
+          { name: "한국 주식 (반도체/수출형)", score: 9.3, group: "equity" },
+          { name: "구리 (닥터 코퍼)", score: 9.0, group: "commodity" },
+          { name: "해외 퀄리티 주식", score: 8.2, group: "equity" },
+          { name: "원화 자산", score: 8.0, group: "fx" },
+          { name: "은 (산업용 귀금속)", score: 7.5, group: "commodity" },
+          { name: "해외 가치주", score: 6.8, group: "equity" },
+          { name: "국내 채권 (국고채)", score: 5.0, group: "bond" },
+          { name: "해외 채권 (미국 10년)", score: 4.8, group: "bond" },
+          { name: "금 (Gold)", score: 4.0, group: "commodity" },
+          { name: "방어주 (통신/유틸)", score: 3.5, group: "equity" },
+          { name: "달러 (USD)", score: 3.0, group: "fx" }
+        ],
+        portfolio: [
+          { name: "미국 성장주 (테크/AI)", weight: 30, color: "#38bdf8", etf: "QQQ, TIGER 미국나스닥100" },
+          { name: "한국 주식 (코스피/반도체)", weight: 25, color: "#f87171", etf: "KODEX 200, TIGER 반도체" },
+          { name: "산업용 구리 & 원자재", weight: 15, color: "#fb923c", etf: "CPER, TIGER 구리실물" },
+          { name: "해외 퀄리티/가치주", weight: 15, color: "#a855f7", etf: "QUAL, SCHD" },
+          { name: "글로벌 중단기 채권", weight: 10, color: "#34d399", etf: "IEF, KODEX 국고채3년" },
+          { name: "원화 현금/MMF", weight: 5, color: "#64748b", etf: "CD금리 액티브" }
+        ]
+      },
+
+      overheat: {
+        title: "경기 과열 국면 (Overheat)",
+        subtext: "경기 호황 지속 ↑ | 원자재/물가 급등 ↑ | 금리 인상",
+        badge: "bg-red-500/20 text-red-300 border-red-500/30",
+        commentary: "수요가 공급을 초과하며 실물 인플레이션이 폭발합니다. 원유, 농산물, 산업 금속 등 원자재가 가장 강력하며, 주식 내에서는 현금배당을 주는 가치주와 원자재 생산기업이 성장주를 압도합니다. 채권은 금리 상승으로 최악의 성과를 냅니다.",
+        top3: [
+          { rank: 1, name: "원자재 (원유/에너지)", tag: "실물 자산", why: "공급 쇼크 및 수요 견인 인플레" },
+          { rank: 2, name: "가치주 & 금융주", tag: "미국/한국 전통산업", why: "금리 상승 및 원자재 마진 수혜" },
+          { rank: 3, name: "구리 & 은", tag: "경기민감 금속", why: "실물 인플레이션 헷지 수요" }
+        ],
+        matchups: [
+          { category: "주식 스타일", winner: "가치주 > 성장주 / 방어주", detail: "고금리로 성장주의 멀티플이 압축되는 반면 에너지/금융 가치주 급등." },
+          { category: "국내 vs 해외 주식", winner: "해외 원자재/가치주 우위", detail: "한국은 원자재 수입국이라 무역수지 악화 부담; 미국 원자재 섹터 유리." },
+          { category: "채권 포지셔닝", winner: "단기채 > 장기채 (채권 회피)", detail: "중앙은행의 금리 인상 사이클로 듀레이션이 긴 장기채는 가격 폭락 위험." },
+          { category: "원자재 (금 vs 은 vs 구리)", winner: "에너지/구리 > 금/은", detail: "순수 안전자산(금)보다는 실물 생산에 쓰이는 산업용 원자재가 주도." },
+          { category: "통화 (달러 vs 원화)", winner: "달러 강세 (금리차 확대)", detail: "미국 연준의 선제적 금리 인상과 원자재 결제 수요로 달러 초강세." }
+        ],
+        scores: [
+          { name: "원자재 (에너지/원유)", score: 9.8, group: "commodity" },
+          { name: "구리 (경기 금속)", score: 8.8, group: "commodity" },
+          { name: "해외 가치주 (에너지/금융)", score: 8.5, group: "equity" },
+          { name: "은 (Silver)", score: 8.0, group: "commodity" },
+          { name: "달러 (USD)", score: 7.8, group: "fx" },
+          { name: "금 (Gold)", score: 7.2, group: "commodity" },
+          { name: "해외 퀄리티 주식", score: 6.5, group: "equity" },
+          { name: "한국 가치주/지주사", score: 6.0, group: "equity" },
+          { name: "해외 성장주", score: 4.5, group: "equity" },
+          { name: "한국 주식 (KOSPI 종합)", score: 4.0, group: "equity" },
+          { name: "국내/해외 장기채", score: 2.0, group: "bond" },
+          { name: "원화 자산", score: 3.5, group: "fx" }
+        ],
+        portfolio: [
+          { name: "실물 원자재 & 에너지", weight: 35, color: "#f87171", etf: "DBC, XLE, KODEX WTI원유" },
+          { name: "미국 배당 가치주", weight: 25, color: "#a855f7", etf: "SCHD, VTV" },
+          { name: "구리 및 산업용 금속", weight: 15, color: "#fb923c", etf: "CPER, TIGER 구리" },
+          { name: "금 (Gold)", weight: 10, color: "#eab308", etf: "GLD, ACE KRX금현물" },
+          { name: "초단기 달러 채권 (Cash)", weight: 15, color: "#38bdf8", etf: "BIL, 미국달러SOFR" }
+        ]
+      },
+
+      stagflation: {
+        title: "스태그플레이션 국면 (Stagflation)",
+        subtext: "경기 둔화/침체 ↓ | 고물가 지속 ↑ | 고금리 고착",
+        badge: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+        commentary: "가장 포트폴리오를 지키기 까다로운 구간입니다. 주식과 채권이 동시에 하락하는 60/40 전통 배분의 붕괴가 발생합니다. 화폐가치 훼손을 막는 순수 안전자산 '금(Gold)', 가격 결정력을 가진 '퀄리티/방어주', 그리고 '초단기 달러 현금'이 자산을 보존하는 3대 축입니다.",
+        top3: [
+          { rank: 1, name: "금 (Gold)", tag: "인플레이션 절대 방어", why: "실질금리 하락 및 화폐가치 방어" },
+          { rank: 2, name: "해외 퀄리티 & 방어주", tag: "필수소비재 / 헬스케어", why: "독점적 해자와 원가 전가력" },
+          { rank: 3, name: "달러 단기채 (Cash)", tag: "무위험 고금리 수취", why: "환율 완충 및 유동성 확보" }
+        ],
+        matchups: [
+          { category: "주식 스타일", winner: "방어주 / 퀄리티주 압승", detail: "경기 침체기 원가 전가가 가능한 퀄리티 기업과 필수소비재/헬스케어만 생존." },
+          { category: "국내 vs 해외 주식", winner: "미국 우량 방어주 우세", detail: "한국은 원자재 수입+수출 침체의 이중고로 코스피 마진율 급감; 미국 빅테크/방어주 선호." },
+          { category: "채권 포지셔닝", winner: "미국 초단기채(SOFR) 우세", detail: "인플레로 금리가 높게 유지되므로 장기채 대신 4~5%대 단기 이자를 취하는 단기채 최적." },
+          { category: "원자재 (금 vs 구리)", winner: "금(Gold) 압도적 우위", detail: "경기 수축으로 산업금속 구리는 폭락, 반면 안전자산 금과 귀금속은 신고가 랠리." },
+          { category: "통화 (달러 vs 원화)", winner: "달러 강세 (King Dollar)", detail: "글로벌 위험회피 극대화로 안전자산 달러 선호 심리 심화." }
+        ],
+        scores: [
+          { name: "금 (Gold)", score: 9.8, group: "commodity" },
+          { name: "달러 (USD 초단기채)", score: 9.2, group: "fx" },
+          { name: "해외 퀄리티 주식", score: 7.8, group: "equity" },
+          { name: "해외 방어주 (XLP/XLV)", score: 7.5, group: "equity" },
+          { name: "은 (귀금속 동반 수혜)", score: 7.0, group: "commodity" },
+          { name: "에너지/원유", score: 6.8, group: "commodity" },
+          { name: "해외 채권 (단기채/TIPS)", score: 6.5, group: "bond" },
+          { name: "국내 채권 (국고채 단기)", score: 5.5, group: "bond" },
+          { name: "한국 고배당/통신주", score: 4.8, group: "equity" },
+          { name: "해외 성장주", score: 4.0, group: "equity" },
+          { name: "구리 (경기 금속)", score: 2.5, group: "commodity" },
+          { name: "한국 주식 (KOSPI 종합)", score: 2.2, group: "equity" }
+        ],
+        portfolio: [
+          { name: "금 (Gold) & 귀금속", weight: 35, color: "#eab308", etf: "GLD, ACE KRX금현물" },
+          { name: "미국 달러 초단기채", weight: 25, color: "#38bdf8", etf: "BIL, SGOV, 미국달러SOFR" },
+          { name: "글로벌 퀄리티 & 필수소비재", weight: 20, color: "#a855f7", etf: "QUAL, XLP, XLV" },
+          { name: "원자재 (원유/농산물)", weight: 10, color: "#fb923c", etf: "DBA, BNO, TIGER 농산물" },
+          { name: "한국 방어주/배당주", weight: 10, color: "#f87171", etf: "KODEX 고배당, 통신주" }
+        ]
+      },
+
+      recession: {
+        title: "경기 수축 및 침체 국면 (Recession / Deflation)",
+        subtext: "성장률 마이너스 급락 ↓ | 인플레이션 붕괴 ↓ | 긴급 금리인하",
+        badge: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+        commentary: "경기 침체 충격으로 중앙은행이 전면적인 금리 인하 및 유동성 공급에 돌입합니다. 주식과 원자재는 투매가 발생하지만, 금리가 급락하면서 만기가 긴 '장기 국채'가 자본 차익을 폭발적으로 가져다줍니다. 금 역시 저금리 수혜로 동반 강세를 보입니다.",
+        top3: [
+          { rank: 1, name: "미국 장기 국채 (20년+)", tag: "채권 자본차익 극대화", why: "공격적 금리 인하로 채권가 폭등" },
+          { rank: 2, name: "국내 장기 국고채", tag: "국고채 10/30년", why: "한국은행 기준금리 인하 반영" },
+          { rank: 3, name: "금 (Gold)", tag: "실질금리 하락 수혜", why: "기회비용(금리) 감소 및 통화가치 하락" }
+        ],
+        matchups: [
+          { category: "주식 스타일", winner: "현금흐름 퀄리티주 > 가치주/성장주", detail: "기업 파산 위험이 높아지므로 부채비율이 낮고 현금이 풍부한 퀄리티 기업만 유지." },
+          { category: "국내 vs 해외 주식", winner: "해외 주식 선호 (주식 비중 최소화)", detail: "주식 자산군 전반 축소. 다만 침체 후반기 낙폭과대 미국 빅테크 분할매수 유리." },
+          { category: "채권 포지셔닝", winner: "장기 국채 압도적 우위", detail: "단기채보다 금리 하락 폭을 온전히 자본이득으로 흡수하는 20년 이상 장기채 독무대." },
+          { category: "원자재 (금 vs 구리/원유)", winner: "금(Gold) 독점 승리", detail: "공장 가동 중단으로 구리와 원유는 폭락하지만, 금은 금리 인하를 호재로 강세." },
+          { category: "통화 (달러 vs 원화)", winner: "달러 (위기 시 안전자산)", detail: "침체 초기 금융위기 쇼크 시 달러 유동성 부족으로 달러 급등, 이후 안정화." }
+        ],
+        scores: [
+          { name: "미국 장기 국채 (TLT)", score: 9.9, group: "bond" },
+          { name: "국내 장기 국채 (10/30년)", score: 9.3, group: "bond" },
+          { name: "금 (Gold)", score: 8.5, group: "commodity" },
+          { name: "달러 현금 (초기 안전자산)", score: 7.5, group: "fx" },
+          { name: "해외 퀄리티 주식", score: 5.5, group: "equity" },
+          { name: "해외 방어주", score: 5.0, group: "equity" },
+          { name: "은 (Silver)", score: 4.5, group: "commodity" },
+          { name: "해외 성장주 (낙폭과대 선별)", score: 3.8, group: "equity" },
+          { name: "한국 주식 (KOSPI)", score: 2.0, group: "equity" },
+          { name: "구리 (경기 금속)", score: 1.5, group: "commodity" },
+          { name: "원자재 (원유/에너지)", score: 1.2, group: "commodity" },
+          { name: "원화 자산", score: 2.5, group: "fx" }
+        ],
+        portfolio: [
+          { name: "미국 초장기 국채 (20년+)", weight: 45, color: "#38bdf8", etf: "TLT, ACE 미국30년국채액티브" },
+          { name: "국내 장기 국고채 (10년/30년)", weight: 25, color: "#34d399", etf: "KODEX 국고채10년, 국고30년" },
+          { name: "금 (Gold)", weight: 15, color: "#eab308", etf: "GLD, ACE KRX금현물" },
+          { name: "미국 퀄리티 빅테크 (저점)", weight: 10, color: "#a855f7", etf: "QUAL, MSFT/AAPL" },
+          { name: "원화/달러 MMF 현금", weight: 5, color: "#64748b", etf: "파킹형 ETF" }
+        ]
+      }
+    };
+
+    let currentRegimeKey = "stagflation";
+    let portfolioChart = null;
+
+    function renderUI() {
+      const data = REGIME_MODELS[currentRegimeKey];
+
+      // Update Header
+      document.getElementById('header-regime-title').textContent = data.title;
+      const pill = document.getElementById('header-regime-pill');
+      pill.className = `px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 ${data.badge}`;
+      pill.innerHTML = `<span class="w-2 h-2 rounded-full bg-current animate-ping"></span> ${data.subtext.split('|')[0]}`;
+
+      // Update Commentary
+      document.getElementById('regime-commentary').textContent = data.commentary;
+
+      // Render Top 3 Podium
+      const top3Container = document.getElementById('top-three-container');
+      top3Container.innerHTML = data.top3.map(item => `
+        <div class="p-3 bg-[#080b11] rounded-lg border border-[#1e293b] flex flex-col justify-between">
+          <div>
+            <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded badge-rank-${item.rank} mb-1.5">
+              Rank #${item.rank} Top Pick
+            </span>
+            <div class="font-bold text-slate-100 text-xs mt-0.5">${item.name}</div>
+            <div class="text-[10px] text-sky-400 font-medium">${item.tag}</div>
+          </div>
+          <div class="text-[10px] text-slate-400 mt-2 bg-[#0f172a] p-1.5 rounded border border-slate-800">
+            ${item.why}
+          </div>
+        </div>
+      `).join('');
+
+      // Render Granular Matchups
+      const matchupsContainer = document.getElementById('sub-asset-matchups');
+      matchupsContainer.innerHTML = data.matchups.map(m => `
+        <div class="p-2.5 bg-[#080b11] rounded-lg border border-[#1e293b]">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-[11px] font-semibold text-slate-400 flex items-center gap-1">
+              <i data-lucide="crosshair" class="w-3 h-3 text-sky-400"></i> ${m.category}
+            </span>
+            <span class="text-[11px] font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-800 px-2 py-0.5 rounded">
+              승자: ${m.winner}
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-snug">${m.detail}</p>
+        </div>
+      `).join('');
+
+      // Render Asset Scores Bar Chart
+      const barsContainer = document.getElementById('asset-score-bars');
+      barsContainer.innerHTML = data.scores.slice(0, 7).map(s => {
+        const pct = (s.score / 10) * 100;
+        let colorClass = "bg-sky-400";
+        if (s.score >= 9) colorClass = "bg-amber-400";
+        else if (s.score <= 4) colorClass = "bg-slate-600";
+        return `
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <span class="text-slate-300 font-medium">${s.name}</span>
+              <span class="font-bold ${s.score >= 8.5 ? 'text-amber-400' : 'text-slate-300'}">${s.score} / 10</span>
+            </div>
+            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+              <div class="${colorClass} h-full rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Render Portfolio Donut Chart
+      renderPortfolioChart(data.portfolio);
+
+      // Render Portfolio Weights Table
+      const weightsContainer = document.getElementById('portfolio-weights-table');
+      weightsContainer.innerHTML = data.portfolio.map(p => `
+        <div class="flex items-center justify-between p-2 bg-[#080b11] rounded border border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${p.color}"></span>
+            <span class="text-slate-300 font-medium text-[11px]">${p.name}</span>
+          </div>
+          <span class="font-bold text-slate-100 text-xs">${p.weight}%</span>
+        </div>
+      `).join('');
+
+      // Render ETF Execution List
+      const etfContainer = document.getElementById('etf-execution-list');
+      etfContainer.innerHTML = data.portfolio.map(p => `
+        <div class="p-2.5 bg-[#080b11] rounded border border-[#1e293b] flex items-center justify-between">
+          <div>
+            <div class="font-semibold text-slate-200 text-xs flex items-center gap-1.5">
+              ${p.name} <span class="text-slate-500 text-[10px]">(${p.weight}%)</span>
+            </div>
+            <div class="text-[11px] text-sky-400 mt-0.5">추천 티커: <strong>${p.etf}</strong></div>
+          </div>
+          <span class="text-[10px] text-slate-400 px-2 py-0.5 rounded bg-slate-800 border border-slate-700">실행</span>
+        </div>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    function renderPortfolioChart(portfolio) {
+      const ctx = document.getElementById('portfolioChart').getContext('2d');
+      if (portfolioChart) portfolioChart.destroy();
+
+      portfolioChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: portfolio.map(p => p.name),
+          datasets: [{
+            data: portfolio.map(p => p.weight),
+            backgroundColor: portfolio.map(p => p.color),
+            borderColor: '#0f172a',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) { return ` ${ctx.label}: ${ctx.raw}%`; }
+              }
+            }
+          },
+          cutout: '70%'
+        }
+      });
+    }
+
+    function setRegimePreset(regimeKey) {
+      currentRegimeKey = regimeKey;
+      
+      // Update Buttons Styling
+      ['recovery', 'overheat', 'stagflation', 'recession'].forEach(k => {
+        const btn = document.getElementById(`btn-pre-${k}`);
+        if (k === regimeKey) {
+          btn.className = "p-2.5 rounded border border-sky-500 bg-sky-500/10 text-left transition";
+        } else {
+          btn.className = "p-2.5 rounded border border-slate-800 bg-[#080b11] hover:border-slate-700 text-left transition";
+        }
+      });
+
+      renderUI();
+    }
+
+    function onCustomSliderChange() {
+      const growth = parseInt(document.getElementById('rng-growth').value);
+      const cpi = parseInt(document.getElementById('rng-cpi').value);
+
+      document.getElementById('txt-growth').textContent = 
+        growth > 0 ? `성장 가속 (+${growth}%)` : growth === 0 ? `중립 (0%)` : `수축 (${growth}%)`;
+      document.getElementById('txt-cpi').textContent = 
+        cpi > 0 ? `물가 급등 (+${cpi + 2}%)` : cpi === 0 ? `적정 물가 (2%)` : `디플레이션 (${cpi + 2}%)`;
+
+      if (growth >= 0 && cpi <= 0) {
+        currentRegimeKey = 'recovery';
+      } else if (growth >= 0 && cpi > 0) {
+        currentRegimeKey = 'overheat';
+      } else if (growth < 0 && cpi > 0) {
+        currentRegimeKey = 'stagflation';
+      } else {
+        currentRegimeKey = 'recession';
+      }
+
+      renderUI();
+    }
+
+    // Initial Load
+    window.addEventListener('DOMContentLoaded', () => {
+      setRegimePreset('stagflation');
+    });
+  </script>
+</body>
+</html>
