@@ -35,16 +35,16 @@
       </div>
       <div>
         <h1 class="text-sm font-bold text-white flex items-center gap-2">
-          MACRO-TO-ETF PIPELINE <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800">Return & Trend Tracker</span>
+          MACRO-TO-ETF PIPELINE <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800">Live Data Tracker</span>
         </h1>
-        <p class="text-[11px] text-slate-400">1단계: 국면 진단 ➔ 2단계: 승자 자산 (3년 주간 차트) ➔ 3단계: ETF 편입내역(PDF) 및 수익률</p>
+        <p class="text-[11px] text-slate-400">1단계: 국면 진단 ➔ 2단계: 승자 자산 (실시간 3년 차트) ➔ 3단계: ETF 구조 및 실시간 수익률 추적</p>
       </div>
     </div>
 
     <div class="flex items-center gap-4">
       <div class="text-right hidden sm:block">
         <div class="text-[10px] text-slate-500 font-medium">실시간 매크로 자동 진단</div>
-        <div id="header-regime-status" class="text-xs font-bold text-red-400">시장금리 상승 & 원자재 우위</div>
+        <div id="header-regime-status" class="text-xs font-bold text-slate-400">진단 중...</div>
       </div>
       <button onclick="runMacroPipeline()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium flex items-center gap-1.5 border border-slate-700 transition">
         <i data-lucide="refresh-cw" id="sync-icon" class="w-3.5 h-3.5 text-sky-400"></i>
@@ -63,7 +63,7 @@
             <span class="w-5 h-5 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs font-extrabold border border-sky-500/30">1</span>
             실시간 매크로 지표 관제
           </h2>
-          <span id="data-status-badge" class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">LIVE SYNC</span>
+          <span id="data-status-badge" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-400 border border-slate-500/20 font-bold">수신 대기</span>
         </div>
 
         <div class="space-y-2 text-xs">
@@ -73,19 +73,17 @@
               <span class="text-[10px] text-slate-500">Global Cost of Capital</span>
             </div>
             <div class="text-right">
-              <span id="metric-us10y" class="font-bold text-slate-100 text-sm">연산 중...</span>
-              <span id="sub-us10y" class="block text-[10px] text-red-400 font-medium">▲ 상승 압력 지속</span>
+              <span id="metric-us10y" class="font-bold text-slate-100 text-sm">연동 중...</span>
             </div>
           </div>
 
           <div class="p-2.5 bg-[#080b11] rounded border border-slate-800 flex justify-between items-center">
             <div>
-              <span class="text-slate-400 block text-[11px]">장단기 금리차 (10Y-2Y)</span>
+              <span class="text-slate-400 block text-[11px]">장단기 금리차 (10Y-3M)</span>
               <span class="text-[10px] text-slate-500">Yield Curve Slope</span>
             </div>
             <div class="text-right">
-              <span id="metric-curve" class="font-bold text-slate-100 text-sm">연산 중...</span>
-              <span class="block text-[10px] text-amber-400 font-medium">스프레드 확대</span>
+              <span id="metric-curve" class="font-bold text-slate-100 text-sm">연동 중...</span>
             </div>
           </div>
 
@@ -95,17 +93,17 @@
               <span class="text-[10px] text-slate-500">인플레이션 선행지표</span>
             </div>
             <div class="text-right">
-              <span id="metric-oil" class="font-bold text-slate-100 text-sm">연산 중...</span>
-              <span id="sub-oil" class="block text-[10px] text-slate-400">배럴당 선물 시세</span>
+              <span id="metric-oil" class="font-bold text-slate-100 text-sm">연동 중...</span>
+              <span id="sub-oil" class="block text-[10px] text-slate-400">선물 시세</span>
             </div>
           </div>
         </div>
 
-        <div class="mt-4 p-3 bg-[#080b11] rounded-lg border border-red-500/30">
+        <div class="mt-4 p-3 bg-[#080b11] rounded-lg border border-[#1e293b]" id="verdict-box">
           <div class="text-[10px] text-slate-400 font-medium">확정된 매크로 사이클</div>
-          <div id="verdict-regime-title" class="text-xs font-bold text-red-400 mt-0.5">시장금리 상승 & 원자재 우위 국면</div>
-          <p id="verdict-regime-desc" class="text-[11px] text-slate-400 mt-1 leading-relaxed">
-            국채 공급 압박과 끈적한 유가로 금리가 상승 중입니다. <strong>장기 국채는 가격 하락 위험으로 배제</strong>되며 실물 자산과 초단기 파킹형 금리 자산이 요구됩니다.
+          <div id="verdict-regime-title" class="text-xs font-bold text-slate-300 mt-0.5">데이터 수신 대기 중...</div>
+          <p id="verdict-regime-desc" class="text-[11px] text-slate-500 mt-1 leading-relaxed">
+            실시간 데이터를 바탕으로 현재 시장 국면을 진단합니다.
           </p>
         </div>
       </div>
@@ -116,12 +114,12 @@
           <i data-lucide="sliders" class="w-3.5 h-3.5 text-sky-400"></i> 국면 스위칭 강제 테스트
         </div>
         <div class="grid grid-cols-2 gap-2 text-xs">
-          <button onclick="forceRegime('rates_rising')" id="btn-reg-rates_rising" class="p-2 rounded border border-red-500 bg-red-500/10 text-left transition">
-            <div class="font-bold text-red-400">1. 금리 상승 (현재)</div>
+          <button onclick="forceRegime('rates_rising')" id="btn-reg-rates_rising" class="p-2 rounded border border-slate-800 bg-[#080b11] text-left transition">
+            <div class="font-bold text-red-400">1. 금리 상승/고착</div>
             <div class="text-[10px] text-slate-400">초단기채 / 금 / 원유</div>
           </button>
           <button onclick="forceRegime('recession')" id="btn-reg-recession" class="p-2 rounded border border-slate-800 bg-[#080b11] text-left transition">
-            <div class="font-bold text-blue-400">2. 경기 침체/금리인하</div>
+            <div class="font-bold text-blue-400">2. 경기 침체/인하</div>
             <div class="text-[10px] text-slate-400">미국 30년 장기국채</div>
           </button>
           <button onclick="forceRegime('goldilocks')" id="btn-reg-goldilocks" class="p-2 rounded border border-slate-800 bg-[#080b11] text-left transition">
@@ -130,13 +128,13 @@
           </button>
           <button onclick="forceRegime('stagflation')" id="btn-reg-stagflation" class="p-2 rounded border border-slate-800 bg-[#080b11] text-left transition">
             <div class="font-bold text-amber-400">4. 스태그플레이션</div>
-            <div class="text-[10px] text-slate-400">순수 금 실물 / 필수소비</div>
+            <div class="text-[10px] text-slate-400">순수 금 / 필수방어주</div>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- STEP 2: Recommended Assets & 3-Year Chart (4 Cols) -->
+    <!-- STEP 2: Recommended Assets & LIVE 3-Year Chart (4 Cols) -->
     <div class="col-span-12 lg:col-span-4 space-y-4">
       <div class="bg-[#0f172a] border border-[#1e293b] rounded-xl p-4 shadow-sm">
         <div class="flex items-center justify-between border-b border-[#1e293b] pb-2 mb-3">
@@ -144,21 +142,21 @@
             <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs font-extrabold border border-amber-500/30">2</span>
             국면 맞춤 승자 상품 (자산군)
           </h2>
-          <span class="text-[10px] text-slate-400">클릭 시 156주 주간 궤적 표출</span>
+          <span class="text-[10px] text-slate-400">클릭 시 156주 궤적 연동</span>
         </div>
         <div class="space-y-2.5" id="asset-container">
           <!-- Injected via JS -->
         </div>
       </div>
 
-      <!-- 3-Year WEEKLY Trend Chart (156 Weeks) -->
+      <!-- REAL-TIME 3-Year WEEKLY Trend Chart (156 Weeks) -->
       <div class="bg-[#0f172a] border border-[#1e293b] rounded-xl p-4 shadow-sm">
         <div class="flex items-center justify-between mb-2">
           <h3 class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-            <i data-lucide="line-chart" class="w-3.5 h-3.5 text-sky-400"></i>
+            <i data-lucide="line-chart" id="chart-loading-icon" class="w-3.5 h-3.5 text-sky-400"></i>
             <span id="trend-chart-title" class="text-sky-300">선택 상품</span> 최근 3년 (주간)
           </h3>
-          <span class="text-[10px] text-slate-500">156주 누적 수익률</span>
+          <span class="text-[10px] text-slate-500">실시간 연동 데이터</span>
         </div>
         <div class="h-32 relative flex items-center justify-center">
           <canvas id="trendChart"></canvas>
@@ -178,7 +176,7 @@
       </div>
     </div>
 
-    <!-- STEP 3: Matching KRX ETFs, Holdings & Multi-Period Returns (5 Cols) -->
+    <!-- STEP 3: Matching KRX ETFs, Holdings & LIVE Returns (5 Cols) -->
     <div class="col-span-12 lg:col-span-5 space-y-4">
       <div class="bg-[#0f172a] border border-sky-500/40 rounded-xl p-5 shadow-xl sticky top-20">
         
@@ -190,7 +188,7 @@
             </div>
             <div class="flex items-center gap-2 mt-1.5">
               <span id="target-asset-badge" class="text-xs font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                선택 상품: 달러 초단기채 / 현금
+                선택 상품: 대기 중...
               </span>
               <span class="text-[11px] text-slate-400">연관 KRX 상장 ETF</span>
             </div>
@@ -199,31 +197,36 @@
 
         <div class="space-y-2 mb-4" id="matched-etf-cards"></div>
 
-        <!-- MULTI-PERIOD RETURNS PERFORMANCE MATRIX -->
+        <!-- REALTIME MULTI-PERIOD RETURNS PERFORMANCE MATRIX -->
         <div class="mb-4 p-3 bg-[#080b11] rounded-xl border border-[#1e293b]">
           <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
               <i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-400"></i>
               <span id="return-tracker-title" class="text-sky-300">ETF</span> 기간별 수익률 트래커
             </span>
+            <span class="text-[10px] text-slate-500">실시간 종가 계산 (API)</span>
           </div>
-          <div class="grid grid-cols-5 gap-1.5 text-center text-xs" id="returns-grid"></div>
+          <div class="grid grid-cols-5 gap-1.5 text-center text-xs" id="returns-grid">
+            <div class="col-span-5 py-4 text-slate-500 text-xs flex items-center justify-center gap-2">
+              <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> 실시간 시세 연동 중...
+            </div>
+          </div>
         </div>
 
-        <!-- PDF Holdings Table -->
+        <!-- Structural Holdings Table (Target) -->
         <div class="space-y-2">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
               <i data-lucide="layers" class="w-3.5 h-3.5 text-sky-400"></i>
-              <span id="inspecting-etf-title">ETF</span> 편입내역(PDF) 실사
+              <span id="inspecting-etf-title">ETF</span> 운용목표 및 기초지수 자산
             </span>
           </div>
           <div class="overflow-hidden rounded-lg border border-[#1e293b]">
             <table class="w-full text-left text-xs">
               <thead class="bg-[#080b11] text-slate-400 text-[11px] border-b border-[#1e293b]">
                 <tr>
-                  <th class="p-2.5">실제 편입 종목/자산명</th>
-                  <th class="p-2.5 text-right">보유 비중(%)</th>
+                  <th class="p-2.5">타겟 기초자산 (Mandate)</th>
+                  <th class="p-2.5 text-right">목표 비중</th>
                   <th class="p-2.5 text-right">적합성 판정</th>
                 </tr>
               </thead>
@@ -238,253 +241,141 @@
   </main>
 
   <script>
-    // HELPER: Generate 156-week realistic macro trend data (Base 100)
-    // It adds structural drift, macroeconomic cyclical waves (sine), and random market noise.
-    function generateWeeklyTrend(start, end, volatility) {
-      let data = [];
-      const totalWeeks = 156; // 52 weeks * 3 years
-      for(let i=0; i<totalWeeks; i++) {
-        let progress = i / (totalWeeks - 1);
-        // Linear baseline
-        let baseValue = start + (end - start) * progress;
-        // Cycle wave (simulates intermediate market cycles)
-        let macroCycle = Math.sin(progress * Math.PI * 3.5) * (volatility * start * 1.5);
-        // Random noise (simulates weekly volatility)
-        let noise = (Math.random() - 0.5) * volatility * start;
-        
-        let finalVal = baseValue + macroCycle + noise;
-        // Force the final data point to exactly match the target end value
-        if (i === totalWeeks - 1) finalVal = end;
-        data.push(parseFloat(finalVal.toFixed(2)));
-      }
-      return data;
-    }
-
-    // Generate Weekly Trend Arrays (Start 100 -> End Target, Volatility Factor)
-    const TREND_CASH  = generateWeeklyTrend(100, 115.5, 0.002); // Smooth, steady
-    const TREND_GOLD  = generateWeeklyTrend(100, 155.4, 0.04);  // Solid uptrend, moderate vol
-    const TREND_OIL   = generateWeeklyTrend(100, 128.9, 0.06);  // Higher volatility commodity
-    const TREND_DIV   = generateWeeklyTrend(100, 118.5, 0.02);  // Steady value dividend
-    const TREND_LBON  = generateWeeklyTrend(100, 95.4,  0.05);  // Bearish with heavy swings
-    const TREND_KBON  = generateWeeklyTrend(100, 108.5, 0.025); // Domestic bonds, lower swing
-    const TREND_TECH  = generateWeeklyTrend(100, 230.5, 0.08);  // Explosive growth, high vol
-    const TREND_KOSPI = generateWeeklyTrend(100, 135.6, 0.05);  // Cyclical swings
-    const TREND_COP   = generateWeeklyTrend(100, 148.2, 0.06);  // Doctor copper cyclical
-
-    // DATA PIPELINE
+    // 1. DATA PIPELINE WITH REAL TICKERS
     const PIPELINE_DATA = {
       rates_rising: {
         title: "시장금리 상승 & 원자재 우위 국면",
-        desc: "미국 10년물 국채 금리가 반등세를 보이고 끈적한 유가로 장기채 가격이 하락 압력을 받습니다. 장기채 손실을 회피하고 초단기채, 금, 에너지, 가치주로 포트폴리오를 채워야 합니다.",
+        desc: "미국 국채 금리가 상승세(또는 고금리 고착)를 보이고 인플레 우려가 남은 구간입니다. 장기채 손실을 회피하고 초단기채, 금, 에너지, 가치주로 포트폴리오를 채워야 합니다.",
         assets: [
           {
-            id: "cash_sofr", rank: 1, name: "달러 초단기채 / 현금", tag: "이자 수취 & 원금손실 0%", weight: 35, color: "#38bdf8",
-            why: "금리가 오를수록 매일 붙는 이자가 커지며 듀레이션이 0이라 채권 평가손실이 전무합니다.",
-            trendData: TREND_CASH,
+            id: "cash_sofr", rank: 1, name: "달러 초단기채 / 현금", tag: "이자 수취 & 원금손실 0%", weight: 35, color: "#38bdf8", ticker: "SHV",
+            why: "금리가 오를수록 이자가 커지며 듀레이션이 0이라 채권 평가손실이 전무합니다.",
             etfs: [
-              {
-                code: "449170", name: "TIGER 미국달러SOFR금리액티브", issuer: "미래에셋", fee: "0.05%", feature: "미국 무위험 지표금리 추종 달러 파킹",
-                returns: { r1d: "+0.02%", r1w: "+0.11%", r1m: "+0.45%", r3m: "+1.38%", r6m: "+2.75%" },
-                holdings: [{ name: "US SOFR Index Swap", weight: "98.5%", fit: "적격 (손실위험 0%)", color: "text-emerald-400" }, { name: "USD 현금", weight: "1.5%", fit: "적격", color: "text-emerald-400" }]
-              }
+              { code: "449170", name: "TIGER 미국달러SOFR금리액티브", issuer: "미래에셋", fee: "0.05%", feature: "무위험 지표금리 달러 파킹", holdings: [{ name: "US SOFR Index Swap", weight: "98.5%", fit: "적격 (손실위험 0%)", color: "text-emerald-400" }, { name: "USD 현금", weight: "1.5%", fit: "적격", color: "text-emerald-400" }] },
+              { code: "423160", name: "KODEX KOFR금리액티브(합성)", issuer: "삼성", fee: "0.03%", feature: "한국 국채 담보 익일물 원화 파킹", holdings: [{ name: "KOFR Overnight 지수 스왑", weight: "95.0%", fit: "적격 (원화 무위험)", color: "text-emerald-400" }, { name: "원화 예금/콜론", weight: "5.0%", fit: "적격", color: "text-emerald-400" }] }
             ]
           },
           {
-            id: "gold", rank: 2, name: "순수 금 (Gold) 실물", tag: "통화가치 훼손 & 인플레 헷지", weight: 25, color: "#eab308",
+            id: "gold", rank: 2, name: "순수 금 (Gold) 실물", tag: "통화가치 훼손 & 인플레 헷지", weight: 25, color: "#eab308", ticker: "GC=F",
             why: "재정적자 급증에 따른 화폐 신뢰도 하락과 지정학 위기를 방어하는 실물 안전자산입니다.",
-            trendData: TREND_GOLD,
             etfs: [
-              {
-                code: "411060", name: "ACE KRX금현물", issuer: "한국투자", fee: "0.15%", feature: "국내 유일 순금 99.99% 실물 ETF",
-                returns: { r1d: "+0.65%", r1w: "+2.14%", r1m: "+5.82%", r3m: "+14.20%", r6m: "+26.85%" },
-                holdings: [{ name: "한국거래소 1kg 순금 실물", weight: "99.8%", fit: "적격 (인플레 헷지)", color: "text-emerald-400" }]
-              }
+              { code: "411060", name: "ACE KRX금현물", issuer: "한국투자", fee: "0.15%", feature: "순금 99.99% 실물 ETF", holdings: [{ name: "한국거래소 1kg 순금 실물", weight: "100%", fit: "적격 (인플레 헷지)", color: "text-emerald-400" }] }
             ]
           },
           {
-            id: "energy", rank: 3, name: "원유 및 에너지 기업", tag: "유가 상승 마진 직결", weight: 20, color: "#f87171",
+            id: "energy", rank: 3, name: "원유 및 에너지 기업", tag: "유가 상승 마진 직결", weight: 20, color: "#f87171", ticker: "XLE",
             why: "고금리와 인플레이션을 유발하는 주원인인 유가 상승분을 영업이익으로 흡수합니다.",
-            trendData: TREND_OIL,
             etfs: [
-              {
-                code: "219480", name: "TIGER 미국에너지MSCI", issuer: "미래에셋", fee: "0.25%", feature: "엑손모빌, 셰브론 압축",
-                returns: { r1d: "+1.15%", r1w: "+3.42%", r1m: "+6.10%", r3m: "+8.95%", r6m: "+15.30%" },
-                holdings: [{ name: "엑손 모빌", weight: "22.8%", fit: "적격", color: "text-emerald-400" }, { name: "셰브론", weight: "15.4%", fit: "적격", color: "text-emerald-400" }]
-              }
+              { code: "219480", name: "TIGER 미국에너지MSCI", issuer: "미래에셋", fee: "0.25%", feature: "엑손모빌, 셰브론 압축", holdings: [{ name: "미국 대형 정유주 (Exxon, Chevron 등)", weight: "100%", fit: "적격", color: "text-emerald-400" }] }
             ]
           },
           {
-            id: "value_div", rank: 4, name: "미국 배당 가치주", tag: "저부채 & 현금배당 방어력", weight: 20, color: "#a855f7",
-            why: "낮은 PER과 높은 배당으로 하방을 지킵니다.",
-            trendData: TREND_DIV,
+            id: "value_div", rank: 4, name: "미국 배당 가치주", tag: "저부채 & 현금배당 방어력", weight: 20, color: "#a855f7", ticker: "SCHD",
+            why: "미래 현금흐름 할인이 큰 성장주 대비, 낮은 PER과 높은 배당으로 하방을 지킵니다.",
             etfs: [
-              {
-                code: "458730", name: "TIGER 미국배당다우존스", issuer: "미래에셋", fee: "0.01%", feature: "한국판 SCHD",
-                returns: { r1d: "-0.15%", r1w: "+0.85%", r1m: "+2.40%", r3m: "+5.15%", r6m: "+9.80%" },
-                holdings: [{ name: "록히드 마틴", weight: "4.5%", fit: "적격", color: "text-emerald-400" }, { name: "애브비", weight: "4.3%", fit: "적격", color: "text-emerald-400" }]
-              }
+              { code: "458730", name: "TIGER 미국배당다우존스", issuer: "미래에셋", fee: "0.01%", feature: "한국판 SCHD", holdings: [{ name: "미국 배당성장 100종목 (Dow Jones US Div)", weight: "100%", fit: "적격", color: "text-emerald-400" }] }
             ]
           }
         ]
       },
       recession: {
-        title: "경기 급랭 & 긴급 금리인하 국면",
-        desc: "성장률이 급락하고 중앙은행이 기준금리를 공격적으로 인하합니다. 듀레이션이 긴 장기 국채가 채권 가격 폭등으로 최고의 자본차익을 안겨줍니다.",
+        title: "경기 침체 & 금리인하 국면",
+        desc: "경기 지표가 둔화되고 국채 금리가 급락하는 구간입니다. 만기(듀레이션)가 긴 장기 국채가 자본차익을 가져다줍니다.",
         assets: [
           {
-            id: "us_lt_bond", rank: 1, name: "미국 초장기 국채 (20Y+)", tag: "자본차익 극대화", weight: 45, color: "#38bdf8",
-            why: "금리가 수직 낙하할 때 만기가 긴 국채는 가격 상승 탄력이 가장 폭발적입니다.",
-            trendData: TREND_LBON, 
+            id: "us_lt_bond", rank: 1, name: "미국 초장기 국채 (20Y+)", tag: "자본차익 극대화", weight: 45, color: "#38bdf8", ticker: "TLT",
+            why: "금리가 수직 낙하할 때 만기가 긴 국채는 가격 상승 탄력이 폭발적입니다.",
             etfs: [
-              {
-                code: "453850", name: "ACE 미국30년국채액티브", issuer: "한국투자", fee: "0.05%", feature: "미국 30년 국채 현물",
-                returns: { r1d: "+1.85%", r1w: "+4.20%", r1m: "+9.50%", r3m: "+18.30%", r6m: "+24.50%" },
-                holdings: [{ name: "US Treasury Bond 30Y", weight: "98.2%", fit: "적격 (자본차익)", color: "text-emerald-400" }]
-              }
+              { code: "453850", name: "ACE 미국30년국채액티브", issuer: "한국투자", fee: "0.05%", feature: "미국 30년 국채 현물", holdings: [{ name: "US Treasury Bond 30Y", weight: "100%", fit: "적격 (자본차익)", color: "text-emerald-400" }] }
             ]
           },
           {
-            id: "kr_lt_bond", rank: 2, name: "국내 장기 국고채 (10Y/30Y)", tag: "한은 기준금리 인하", weight: 25, color: "#34d399",
-            why: "국내 국고채 평가이익을 극대화합니다.",
-            trendData: TREND_KBON,
+            id: "kr_lt_bond", rank: 2, name: "국내 장기 국고채 (10Y)", tag: "한은 기준금리 인하 반영", weight: 25, color: "#34d399", ticker: "152380.KS",
+            why: "한국은행의 금리 인하 사이클을 추종하여 평가이익을 얻습니다.",
             etfs: [
-              {
-                code: "152380", name: "KODEX 국고채10년", issuer: "삼성", fee: "0.07%", feature: "국내 10년 대표 장기채",
-                returns: { r1d: "+0.95%", r1w: "+2.30%", r1m: "+5.10%", r3m: "+9.80%", r6m: "+14.20%" },
-                holdings: [{ name: "국고채 10년물 지표채권", weight: "99.1%", fit: "적격", color: "text-emerald-400" }]
-              }
+              { code: "152380", name: "KODEX 국고채10년", issuer: "삼성", fee: "0.07%", feature: "국내 10년 대표 장기채", holdings: [{ name: "한국 국고채 10년물 지표채권", weight: "100%", fit: "적격", color: "text-emerald-400" }] }
             ]
           },
           {
-            id: "gold_safe", rank: 3, name: "금 (Gold)", tag: "실질금리 급락 수혜", weight: 20, color: "#eab308",
-            why: "금리 인하로 안전자산 수요가 몰립니다.",
-            trendData: TREND_GOLD,
+            id: "gold_safe", rank: 3, name: "금 (Gold)", tag: "실질금리 하락 수혜", weight: 20, color: "#eab308", ticker: "GC=F",
+            why: "금리 인하로 화폐 보유 기회비용이 감소하며 안전자산 수요가 몰립니다.",
             etfs: [
-              {
-                code: "411060", name: "ACE KRX금현물", issuer: "한국투자", fee: "0.15%", feature: "순금 실물 추종",
-                returns: { r1d: "+0.65%", r1w: "+2.14%", r1m: "+5.82%", r3m: "+14.20%", r6m: "+26.85%" },
-                holdings: [{ name: "KRX 금현물 1kg", weight: "99.8%", fit: "적격", color: "text-emerald-400" }]
-              }
+              { code: "411060", name: "ACE KRX금현물", issuer: "한국투자", fee: "0.15%", feature: "순금 실물 추종", holdings: [{ name: "KRX 금현물 1kg", weight: "100%", fit: "적격", color: "text-emerald-400" }] }
             ]
           },
           {
-            id: "cash_reserve", rank: 4, name: "현금 및 초단기채", tag: "위기 시 유동성 버퍼", weight: 10, color: "#64748b",
-            why: "패닉 시 저점 매수를 위한 현금을 비축합니다.",
-            trendData: TREND_CASH,
+            id: "cash_reserve", rank: 4, name: "현금 및 파킹형", tag: "위기 시 유동성 버퍼", weight: 10, color: "#64748b", ticker: "SHV",
+            why: "자산 시장 패닉 시 저점 매수를 위한 현금을 비축합니다.",
             etfs: [
-              {
-                code: "423160", name: "KODEX KOFR금리액티브", issuer: "삼성", fee: "0.03%", feature: "원화 무위험 일일 복리",
-                returns: { r1d: "+0.01%", r1w: "+0.07%", r1m: "+0.29%", r3m: "+0.88%", r6m: "+1.74%" },
-                holdings: [{ name: "KOFR 지수 스왑", weight: "95.0%", fit: "적격", color: "text-emerald-400" }]
-              }
+              { code: "423160", name: "KODEX KOFR금리액티브", issuer: "삼성", fee: "0.03%", feature: "원화 무위험 파킹", holdings: [{ name: "KOFR 지수 스왑", weight: "100%", fit: "적격", color: "text-emerald-400" }] }
             ]
           }
         ]
       },
       goldilocks: {
         title: "골디락스 회복 국면",
-        desc: "물가와 금리가 안정되며 교역이 살아납니다. 한국 수출주와 미국 테크 성장주, 구리가 주도합니다.",
+        desc: "물가가 통제권에 들어오고 금리가 안정되며 경제가 성장합니다. 주식(특히 빅테크와 수출주)과 구리가 포트폴리오를 견인합니다.",
         assets: [
           {
-            id: "us_growth", rank: 1, name: "미국 테크 성장주", tag: "저금리 + 고성장", weight: 35, color: "#38bdf8",
-            why: "나스닥 테크 기업의 멀티플이 크게 확장됩니다.",
-            trendData: TREND_TECH,
+            id: "us_growth", rank: 1, name: "미국 테크 성장주", tag: "안정 금리 + 고성장", weight: 35, color: "#38bdf8", ticker: "QQQ",
+            why: "유동성 환경이 양호할 때 나스닥 혁신 기업의 멀티플이 크게 확장됩니다.",
             etfs: [
-              {
-                code: "133690", name: "TIGER 미국나스닥100", issuer: "미래에셋", fee: "0.07%", feature: "미국 100대 성장주",
-                returns: { r1d: "+1.45%", r1w: "+3.80%", r1m: "+8.20%", r3m: "+16.50%", r6m: "+31.20%" },
-                holdings: [{ name: "애플", weight: "11.2%", fit: "적격", color: "text-emerald-400" }, { name: "마이크로소프트", weight: "10.8%", fit: "적격", color: "text-emerald-400" }]
-              }
+              { code: "133690", name: "TIGER 미국나스닥100", issuer: "미래에셋", fee: "0.07%", feature: "미국 100대 성장주", holdings: [{ name: "미국 나스닥 100 지수 (NASDAQ 100)", weight: "100%", fit: "적격", color: "text-emerald-400" }] }
             ]
           },
           {
-            id: "kr_cyclical", rank: 2, name: "한국 수출 주식 (KOSPI)", tag: "교역 레버리지", weight: 30, color: "#f87171",
-            why: "한국 반도체 등 시클리컬이 높은 탄력을 보입니다.",
-            trendData: TREND_KOSPI,
+            id: "kr_cyclical", rank: 2, name: "한국 수출 주식 (KOSPI)", tag: "교역 반등 레버리지", weight: 30, color: "#f87171", ticker: "069500.KS",
+            why: "글로벌 경기 반등 시 한국 반도체/자동차 등 시클리컬 수출주가 높은 탄력을 보입니다.",
             etfs: [
-              {
-                code: "069500", name: "KODEX 200", issuer: "삼성", fee: "0.15%", feature: "대한민국 대표 200대 기업",
-                returns: { r1d: "+1.10%", r1w: "+3.20%", r1m: "+6.80%", r3m: "+12.40%", r6m: "+18.90%" },
-                holdings: [{ name: "삼성전자", weight: "27.5%", fit: "적격", color: "text-emerald-400" }, { name: "SK하이닉스", weight: "9.2%", fit: "적격", color: "text-emerald-400" }]
-              }
+              { code: "069500", name: "KODEX 200", issuer: "삼성", fee: "0.15%", feature: "대한민국 대표 200대 기업", holdings: [{ name: "코스피 200 지수 (KOSPI 200)", weight: "100%", fit: "적격", color: "text-emerald-400" }] }
             ]
           },
           {
-            id: "copper", rank: 3, name: "구리 (닥터 코퍼)", tag: "제조업 활황 실물 수요", weight: 20, color: "#fb923c",
-            why: "인프라 투자 확대로 산업용 금속 수요가 폭증합니다.",
-            trendData: TREND_COP,
+            id: "copper", rank: 3, name: "구리 (닥터 코퍼)", tag: "제조업 활황 실물 수요", weight: 20, color: "#fb923c", ticker: "HG=F",
+            why: "공장 가동률 상승 및 전력 인프라 투자 확대로 산업용 금속 수요가 증가합니다.",
             etfs: [
-              {
-                code: "138910", name: "TIGER 구리실물", issuer: "미래에셋", fee: "0.45%", feature: "LME 구리 실물 추종",
-                returns: { r1d: "+0.85%", r1w: "+2.70%", r1m: "+7.10%", r3m: "+15.80%", r6m: "+28.40%" },
-                holdings: [{ name: "LME 구리 실물", weight: "99.5%", fit: "적격", color: "text-emerald-400" }]
-              }
+              { code: "138910", name: "TIGER 구리실물", issuer: "미래에셋", fee: "0.45%", feature: "LME 구리 실물 추종", holdings: [{ name: "LME 구리 실물 (Copper)", weight: "100%", fit: "적격", color: "text-emerald-400" }] }
             ]
           },
           {
-            id: "quality_div", rank: 4, name: "글로벌 퀄리티 배당", tag: "안정적 현금흐름 배분", weight: 15, color: "#a855f7",
-            why: "안정적 현금 배당을 창출하여 포트폴리오를 지탱합니다.",
-            trendData: TREND_DIV,
+            id: "quality_div", rank: 4, name: "글로벌 퀄리티 배당", tag: "포트폴리오 밸런스", weight: 15, color: "#a855f7", ticker: "SCHD",
+            why: "성장주 변동성을 제어하고 안정적인 현금 배당을 창출합니다.",
             etfs: [
-              {
-                code: "458730", name: "TIGER 미국배당다우존스", issuer: "미래에셋", fee: "0.01%", feature: "배당성장 100종목",
-                returns: { r1d: "-0.15%", r1w: "+0.85%", r1m: "+2.40%", r3m: "+5.15%", r6m: "+9.80%" },
-                holdings: [{ name: "록히드 마틴", weight: "4.5%", fit: "적격", color: "text-emerald-400" }]
-              }
+              { code: "458730", name: "TIGER 미국배당다우존스", issuer: "미래에셋", fee: "0.01%", feature: "배당성장 100종목", holdings: [{ name: "Dow Jones US Dividend 100", weight: "100%", fit: "적격", color: "text-emerald-400" }] }
             ]
           }
         ]
       },
       stagflation: {
         title: "스태그플레이션 국면 (물가↑ 성장↓)",
-        desc: "물가는 오르는데 경기는 가라앉습니다. 실물 자산인 금과 원가전가력을 지닌 미국 배당주, 단기 달러채로 방어합니다.",
+        desc: "물가는 오르는데 경제 성장이 둔화되는 가장 까다로운 국면입니다. 주식과 채권이 동반 약세를 보이므로 금과 방어적 자산으로 버텨야 합니다.",
         assets: [
           {
-            id: "gold_pure", rank: 1, name: "순수 금 (Gold)", tag: "스태그 절대 승자", weight: 35, color: "#eab308",
-            why: "화폐가치 훼손을 방어하는 유일한 실물 피난처입니다.",
-            trendData: TREND_GOLD,
+            id: "gold_pure", rank: 1, name: "순수 금 (Gold)", tag: "스태그 절대 피난처", weight: 35, color: "#eab308", ticker: "GC=F",
+            why: "전통 금융자산(주식/채권)이 하락할 때 화폐가치 훼손을 방어하는 유일한 피난처입니다.",
             etfs: [
-              {
-                code: "411060", name: "ACE KRX금현물", issuer: "한국투자", fee: "0.15%", feature: "순금 실물 추종",
-                returns: { r1d: "+0.65%", r1w: "+2.14%", r1m: "+5.82%", r3m: "+14.20%", r6m: "+26.85%" },
-                holdings: [{ name: "KRX 금현물 1kg 실물", weight: "99.8%", fit: "적격", color: "text-emerald-400" }]
-              }
+              { code: "411060", name: "ACE KRX금현물", issuer: "한국투자", fee: "0.15%", feature: "순금 실물 추종", holdings: [{ name: "한국거래소 1kg 금현물", weight: "100%", fit: "적격", color: "text-emerald-400" }] }
             ]
           },
           {
-            id: "sofr_safe", rank: 2, name: "달러 초단기채", tag: "고금리 이자 & 환율 방어", weight: 25, color: "#38bdf8",
-            why: "고금리 이자를 고스란히 받으며 안전통화 달러를 확보합니다.",
-            trendData: TREND_CASH,
+            id: "sofr_safe", rank: 2, name: "달러 초단기채", tag: "고금리 이자 & 환율 방어", weight: 25, color: "#38bdf8", ticker: "SHV",
+            why: "중앙은행의 고금리 스탠스를 이자로 수취하며 안전통화인 달러를 확보합니다.",
             etfs: [
-              {
-                code: "449170", name: "TIGER 미국달러SOFR금리액티브", issuer: "미래에셋", fee: "0.05%", feature: "SOFR 지표금리 파킹",
-                returns: { r1d: "+0.02%", r1w: "+0.11%", r1m: "+0.45%", r3m: "+1.38%", r6m: "+2.75%" },
-                holdings: [{ name: "US SOFR Swap", weight: "98.5%", fit: "적격", color: "text-emerald-400" }]
-              }
+              { code: "449170", name: "TIGER 미국달러SOFR금리액티브", issuer: "미래에셋", fee: "0.05%", feature: "SOFR 달러 파킹", holdings: [{ name: "US SOFR Index Swap", weight: "100%", fit: "적격", color: "text-emerald-400" }] }
             ]
           },
           {
-            id: "value_pricing", rank: 3, name: "원가전가력 배당가치주", tag: "독점적 필수소비재", weight: 20, color: "#a855f7",
-            why: "물가 상승분을 제품 가격에 전가할 수 있는 독점적 퀄리티 기업만 이익을 보존합니다.",
-            trendData: TREND_DIV,
+            id: "value_pricing", rank: 3, name: "원가전가력 배당가치주", tag: "필수소비재/헬스케어 방어", weight: 20, color: "#a855f7", ticker: "SCHD",
+            why: "물가 상승분을 제품 가격에 전가할 수 있는 퀄리티 가치 기업만 마진을 유지합니다.",
             etfs: [
-              {
-                code: "458730", name: "TIGER 미국배당다우존스", issuer: "미래에셋", fee: "0.01%", feature: "미국 퀄리티 가치주",
-                returns: { r1d: "-0.15%", r1w: "+0.85%", r1m: "+2.40%", r3m: "+5.15%", r6m: "+9.80%" },
-                holdings: [{ name: "애브비", weight: "4.3%", fit: "적격", color: "text-emerald-400" }]
-              }
+              { code: "458730", name: "TIGER 미국배당다우존스", issuer: "미래에셋", fee: "0.01%", feature: "미국 퀄리티 가치주", holdings: [{ name: "Dow Jones US Dividend 100", weight: "100%", fit: "적격", color: "text-emerald-400" }] }
             ]
           },
           {
-            id: "energy_oil", rank: 4, name: "원유 및 에너지", tag: "공급쇼크 수혜", weight: 20, color: "#f87171",
-            why: "에너지 공급난으로 고마진을 누립니다.",
-            trendData: TREND_OIL,
+            id: "energy_oil", rank: 4, name: "원유 및 에너지", tag: "공급쇼크 직접 수혜", weight: 20, color: "#f87171", ticker: "XLE",
+            why: "스태그플레이션을 유발하는 주원인인 에너지 가격 상승을 직접 향유합니다.",
             etfs: [
-              {
-                code: "219480", name: "TIGER 미국에너지MSCI", issuer: "미래에셋", fee: "0.25%", feature: "미국 정유 메이저",
-                returns: { r1d: "+1.15%", r1w: "+3.42%", r1m: "+6.10%", r3m: "+8.95%", r6m: "+15.30%" },
-                holdings: [{ name: "엑손 모빌", weight: "22.8%", fit: "적격", color: "text-emerald-400" }]
-              }
+              { code: "219480", name: "TIGER 미국에너지MSCI", issuer: "미래에셋", fee: "0.25%", feature: "미국 정유 메이저", holdings: [{ name: "미국 에너지 섹터 주식", weight: "100%", fit: "적격", color: "text-emerald-400" }] }
             ]
           }
         ]
@@ -497,14 +388,17 @@
     let assetChartObj = null;
     let trendChartObj = null;
 
-    function formatReturnSpan(retStr) {
-      if (!retStr) return `<span class="text-slate-500">-</span>`;
-      const isPositive = retStr.trim().startsWith('+');
-      const isZero = retStr.trim().startsWith('0') || retStr.trim() === '+0.00%';
+    // Helper: Returns formatting
+    function formatReturnSpan(val) {
+      if (val === null || val === undefined) return `<span class="text-slate-500">N/A</span>`;
+      const isPositive = val > 0;
+      const isZero = val === 0;
       const colorClass = isZero ? "text-slate-400" : isPositive ? "text-red-400" : "text-blue-400";
-      return `<span class="font-bold ${colorClass}">${retStr}</span>`;
+      const sign = isPositive ? "+" : "";
+      return `<span class="font-bold ${colorClass}">${sign}${val.toFixed(2)}%</span>`;
     }
 
+    // MAIN PIPELINE FETCH: MACRO
     async function runMacroPipeline() {
       const icon = document.getElementById('sync-icon');
       const badge = document.getElementById('data-status-badge');
@@ -514,18 +408,38 @@
         badge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold';
       }
 
-      let us10y = 4.45; 
-      let us02y = 4.22;
+      let us10y = null; 
+      let irx = null; // 13-week T-bill for spread
       let wtiOil = null;
       let wtiChange = null;
 
       try {
+        // Fetch TNX (10Y)
+        const tnxUrl = encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/%5ETNX?interval=1d&range=1d');
+        const tnxRes = await fetch(`https://api.allorigins.win/raw?url=${tnxUrl}`);
+        if (tnxRes.ok) {
+          const tnxData = await tnxRes.json();
+          if (tnxData?.chart?.result?.[0]?.meta?.regularMarketPrice) {
+            us10y = parseFloat(tnxData.chart.result[0].meta.regularMarketPrice.toFixed(2));
+          }
+        }
+
+        // Fetch IRX (3M)
+        const irxUrl = encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/%5EIRX?interval=1d&range=1d');
+        const irxRes = await fetch(`https://api.allorigins.win/raw?url=${irxUrl}`);
+        if (irxRes.ok) {
+          const irxData = await irxRes.json();
+          if (irxData?.chart?.result?.[0]?.meta?.regularMarketPrice) {
+            irx = parseFloat(irxData.chart.result[0].meta.regularMarketPrice.toFixed(2));
+          }
+        }
+
+        // Fetch WTI
         const oilUrl = encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/CL=F?interval=1d&range=5d');
         const oilRes = await fetch(`https://api.allorigins.win/raw?url=${oilUrl}`);
         if (oilRes.ok) {
           const oilData = await oilRes.json();
           const meta = oilData?.chart?.result?.[0]?.meta;
-          const quotes = oilData?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.filter(q => q !== null);
           if (meta && meta.regularMarketPrice) {
             wtiOil = parseFloat(meta.regularMarketPrice.toFixed(2));
             const prevClose = meta.chartPreviousClose || meta.previousClose;
@@ -533,24 +447,15 @@
               const chg = ((wtiOil - prevClose) / prevClose) * 100;
               wtiChange = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
             }
-          } else if (quotes && quotes.length > 0) wtiOil = parseFloat(quotes[quotes.length - 1].toFixed(2));
-        }
-
-        const tnxUrl = encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/%5ETNX?interval=1d&range=5d');
-        const tnxRes = await fetch(`https://api.allorigins.win/raw?url=${tnxUrl}`);
-        if (tnxRes.ok) {
-          const tnxData = await tnxRes.json();
-          const meta = tnxData?.chart?.result?.[0]?.meta;
-          if (meta && meta.regularMarketPrice) us10y = parseFloat(meta.regularMarketPrice.toFixed(2));
+          }
         }
       } catch (err) {
-        console.warn("API fallback:", err);
+        console.warn("API fetch error:", err);
       }
 
-      const spread = Math.round((us10y - us02y) * 100);
-
-      document.getElementById('metric-us10y').textContent = `${us10y.toFixed(2)}%`;
-      document.getElementById('metric-curve').textContent = `${spread > 0 ? '+' : ''}${spread} bp`;
+      // DOM Updates
+      document.getElementById('metric-us10y').textContent = us10y !== null ? `${us10y.toFixed(2)}%` : 'N/A';
+      document.getElementById('metric-curve').textContent = (us10y !== null && irx !== null) ? `${Math.round((us10y - irx) * 100) > 0 ? '+' : ''}${Math.round((us10y - irx) * 100)} bp` : 'N/A';
       
       const oilPriceEl = document.getElementById('metric-oil');
       const oilSubEl = document.getElementById('sub-oil');
@@ -561,18 +466,25 @@
           oilSubEl.className = wtiChange.startsWith('+') ? "block text-[10px] text-red-400 font-medium" : "block text-[10px] text-blue-400 font-medium";
         }
       } else {
-        oilPriceEl.textContent = "$78.40";
-        if (oilSubEl) oilSubEl.textContent = "최근 종가 기준";
+        oilPriceEl.textContent = "N/A";
+        if (oilSubEl) oilSubEl.textContent = "조회 불가";
       }
 
-      if (us10y >= 4.30) setRegimeState('rates_rising');
-      else if (us10y <= 3.70) setRegimeState('recession');
-      else setRegimeState('goldilocks');
+      // Automated Regime Diagnostic Logic
+      let autoRegime = 'rates_rising';
+      if (us10y !== null) {
+        if (us10y >= 4.30) autoRegime = 'rates_rising';
+        else if (us10y <= 3.80) autoRegime = 'recession';
+        else autoRegime = 'goldilocks';
+      }
+      setRegimeState(autoRegime);
 
       if (icon) icon.classList.remove('animate-spin');
       if (badge) {
-        badge.textContent = '동기화 완료';
-        badge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold';
+        badge.textContent = us10y !== null ? '실시간 연동됨' : '연동 지연';
+        badge.className = us10y !== null 
+          ? 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold'
+          : 'text-[10px] px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold';
       }
     }
 
@@ -586,19 +498,27 @@
       document.getElementById('verdict-regime-title').textContent = data.title;
       document.getElementById('verdict-regime-desc').innerHTML = data.desc;
 
+      const verdictBox = document.getElementById('verdict-box');
+      if(regimeKey === 'rates_rising' || regimeKey === 'stagflation') verdictBox.className = "mt-4 p-3 bg-[#080b11] rounded-lg border border-red-500/30";
+      else if(regimeKey === 'recession') verdictBox.className = "mt-4 p-3 bg-[#080b11] rounded-lg border border-blue-500/30";
+      else verdictBox.className = "mt-4 p-3 bg-[#080b11] rounded-lg border border-emerald-500/30";
+
       ['rates_rising', 'recession', 'goldilocks', 'stagflation'].forEach(k => {
         const btn = document.getElementById(`btn-reg-${k}`);
-        if (k === regimeKey) btn.className = "p-2 rounded border border-red-500 bg-red-500/10 text-left transition";
-        else btn.className = "p-2 rounded border border-slate-800 bg-[#080b11] text-left transition";
+        if (k === regimeKey) {
+          btn.className = k === 'recession' ? "p-2 rounded border border-blue-500 bg-blue-500/10 text-left transition" :
+                        k === 'goldilocks' ? "p-2 rounded border border-emerald-500 bg-emerald-500/10 text-left transition" :
+                        k === 'stagflation' ? "p-2 rounded border border-amber-500 bg-amber-500/10 text-left transition" :
+                        "p-2 rounded border border-red-500 bg-red-500/10 text-left transition";
+        } else {
+          btn.className = "p-2 rounded border border-slate-800 bg-[#080b11] text-left transition hover:border-slate-700";
+        }
       });
 
-      // Default select the rank 1 asset of this regime
       selectedAssetId = data.assets[0].id;
-
       renderAssetsList();
       selectAsset(selectedAssetId);
       renderAssetDonut(data.assets);
-
       lucide.createIcons();
     }
 
@@ -612,7 +532,7 @@
           <div onclick="selectAsset('${asset.id}')" class="p-3 bg-[#080b11] rounded-xl border ${isSelected ? 'border-amber-400 ring-1 ring-amber-400/50' : 'border-[#1e293b] hover:border-slate-700'} cursor-pointer transition flex items-center justify-between">
             <div class="space-y-1">
               <div class="flex items-center gap-2">
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded badge-rank-${asset.rank}">Rank #${asset.rank} 승자</span>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded badge-rank-${asset.rank}">Rank #${asset.rank}</span>
                 <span class="text-xs font-bold text-slate-100">${asset.name}</span>
               </div>
               <div class="text-[11px] text-slate-400">${asset.tag}</div>
@@ -636,22 +556,78 @@
 
       document.getElementById('target-asset-badge').textContent = `선택 상품: ${asset.name}`;
 
-      // Render 156-Week Trend Chart
-      renderWeeklyTrendChart(asset);
+      // FETCH REAL 3-YEAR WEEKLY DATA FOR THE CHART
+      fetchTrendChart(asset);
 
       selectedEtfCode = asset.etfs[0].code;
       renderMatchedEtfCards(asset.etfs);
       inspectEtfDetails(asset.etfs[0]);
     }
 
-    // Render 156-Week (3-Year) Line Chart
-    function renderWeeklyTrendChart(asset) {
-      document.getElementById('trend-chart-title').textContent = asset.name;
+    // REAL-TIME 3-YEAR WEEKLY CHART ENGINE VIA YAHOO FINANCE
+    async function fetchTrendChart(asset) {
+      const titleEl = document.getElementById('trend-chart-title');
+      const iconEl = document.getElementById('chart-loading-icon');
+      titleEl.textContent = asset.name + " (수신 중...)";
+      if(iconEl) iconEl.classList.add('animate-spin');
+
+      let labels = [];
+      let dataPoints = [];
+
+      try {
+        const url = encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${asset.ticker}?interval=1wk&range=3y`);
+        const res = await fetch(`https://api.allorigins.win/raw?url=${url}`);
+        
+        if (res.ok) {
+          const json = await res.json();
+          const result = json.chart.result[0];
+          const timestamps = result.timestamp;
+          const closes = result.indicators.quote[0].close;
+
+          let validData = [];
+          for (let i = 0; i < closes.length; i++) {
+            if (closes[i] !== null) validData.push({ t: timestamps[i], c: closes[i] });
+          }
+
+          if (validData.length > 0) {
+            const basePrice = validData[0].c;
+            labels = validData.map(d => {
+              const date = new Date(d.t * 1000);
+              return `${date.getFullYear().toString().slice(2)}년 ${date.getMonth() + 1}월`;
+            });
+            // Rebase to 100 for percentage comparison
+            dataPoints = validData.map(d => parseFloat(((d.c / basePrice) * 100).toFixed(2)));
+          }
+        }
+      } catch (err) {
+        console.warn("Chart fetch failed", err);
+      }
+
+      titleEl.textContent = asset.name;
+      if(iconEl) iconEl.classList.remove('animate-spin');
+
+      if (dataPoints.length > 0) {
+        renderLineChart(labels, dataPoints, asset.color);
+      } else {
+        renderEmptyChart();
+      }
+    }
+
+    function renderEmptyChart() {
       const ctx = document.getElementById('trendChart').getContext('2d');
       if (trendChartObj) trendChartObj.destroy();
+      trendChartObj = new Chart(ctx, {
+        type: 'line', data: { labels: [''], datasets: [] },
+        options: {
+          plugins: { title: { display: true, text: '데이터 연동 지연', color: '#64748b' } },
+          scales: { x: { display: false }, y: { display: false } }
+        }
+      });
+    }
 
-      // Create x-axis labels representing weeks
-      const labels = Array.from({length: 156}, (_, i) => `W${i+1}`);
+    function renderLineChart(labels, dataPoints, color) {
+      const ctx = document.getElementById('trendChart').getContext('2d');
+      if (trendChartObj) trendChartObj.destroy();
 
       trendChartObj = new Chart(ctx, {
         type: 'line',
@@ -659,17 +635,17 @@
           labels: labels,
           datasets: [{
             label: '누적 성과 (Base 100)',
-            data: asset.trendData,
-            borderColor: asset.color,
-            backgroundColor: asset.color + '22', // Very light fill
+            data: dataPoints,
+            borderColor: color,
+            backgroundColor: color + '22', 
             borderWidth: 1.5,
-            pointRadius: 0,           // Hide points by default for clean look
-            pointHoverRadius: 4,      // Show point on hover
+            pointRadius: 0,           
+            pointHoverRadius: 4,      
             pointBackgroundColor: '#0f172a',
-            pointBorderColor: asset.color,
+            pointBorderColor: color,
             pointBorderWidth: 2,
             fill: true,
-            tension: 0.1             // Slight tension for organic look
+            tension: 0.1             
           }]
         },
         options: {
@@ -692,14 +668,7 @@
               ticks: { 
                 maxTicksLimit: 4,
                 color: '#64748b', 
-                font: { size: 10 },
-                callback: function(val, index) {
-                  if (index === 0) return '3년 전';
-                  if (index === 52) return '2년 전';
-                  if (index === 104) return '1년 전';
-                  if (index >= 150) return '현재';
-                  return null;
-                }
+                font: { size: 10 }
               } 
             },
             y: { 
@@ -726,8 +695,7 @@
               <div class="text-[11px] text-slate-400 mt-0.5">${etf.feature}</div>
             </div>
             <div class="text-right">
-              <div class="text-[10px] text-slate-400">1M 수익률: ${formatReturnSpan(etf.returns.r1m)}</div>
-              <div class="text-[10px] text-slate-500 mt-0.5">보수: <span class="text-slate-300 font-medium">${etf.fee}</span></div>
+              <div class="text-[10px] text-slate-500 mt-0.5">총 보수: <span class="text-slate-300 font-medium">${etf.fee}</span></div>
             </div>
           </div>
         `;
@@ -744,33 +712,81 @@
       inspectEtfDetails(etf);
     }
 
+    // REALTIME ETF RETURNS FETCH ENGINE
+    async function fetchEtfReturnsRealtime(etfCode) {
+      // Append .KS for KRX ETFs on Yahoo Finance
+      const ticker = `${etfCode}.KS`;
+      const url = encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=6mo`);
+      
+      try {
+        const res = await fetch(`https://api.allorigins.win/raw?url=${url}`);
+        if(!res.ok) return null;
+        
+        const data = await res.json();
+        const quotes = data?.chart?.result?.[0]?.indicators?.quote?.[0]?.close;
+        if (!quotes) return null;
+
+        const validQuotes = quotes.filter(q => q !== null);
+        const len = validQuotes.length;
+        if (len === 0) return null;
+
+        const current = validQuotes[len - 1];
+        
+        // Approximate trading days: 1W~5, 1M~21, 3M~63, 6M~All available in 6mo range
+        const r1d = len > 1 ? ((current - validQuotes[len - 2]) / validQuotes[len - 2]) * 100 : 0;
+        const r1w = len > 5 ? ((current - validQuotes[len - 6]) / validQuotes[len - 6]) * 100 : null;
+        const r1m = len > 21 ? ((current - validQuotes[len - 22]) / validQuotes[len - 22]) * 100 : null;
+        const r3m = len > 63 ? ((current - validQuotes[len - 64]) / validQuotes[len - 64]) * 100 : null;
+        const r6m = len > 1 ? ((current - validQuotes[0]) / validQuotes[0]) * 100 : null;
+
+        return { r1d, r1w, r1m, r3m, r6m };
+      } catch (err) {
+        console.warn("ETF Returns fetch failed", err);
+        return null;
+      }
+    }
+
     function inspectEtfDetails(etf) {
       document.getElementById('inspecting-etf-title').textContent = etf.name;
       document.getElementById('return-tracker-title').textContent = etf.name;
 
       const returnsGrid = document.getElementById('returns-grid');
       returnsGrid.innerHTML = `
-        <div class="p-2 bg-[#0f172a] rounded border border-slate-800">
-          <div class="text-[10px] text-slate-400 mb-0.5">1일(전일비)</div>
-          <div class="text-xs font-mono font-bold">${formatReturnSpan(etf.returns.r1d)}</div>
-        </div>
-        <div class="p-2 bg-[#0f172a] rounded border border-slate-800">
-          <div class="text-[10px] text-slate-400 mb-0.5">1주(7일)</div>
-          <div class="text-xs font-mono font-bold">${formatReturnSpan(etf.returns.r1w)}</div>
-        </div>
-        <div class="p-2 bg-[#0f172a] rounded border border-slate-800">
-          <div class="text-[10px] text-slate-400 mb-0.5">1개월</div>
-          <div class="text-xs font-mono font-bold">${formatReturnSpan(etf.returns.r1m)}</div>
-        </div>
-        <div class="p-2 bg-[#0f172a] rounded border border-slate-800">
-          <div class="text-[10px] text-slate-400 mb-0.5">3개월</div>
-          <div class="text-xs font-mono font-bold">${formatReturnSpan(etf.returns.r3m)}</div>
-        </div>
-        <div class="p-2 bg-[#0f172a] rounded border border-slate-800">
-          <div class="text-[10px] text-slate-400 mb-0.5">6개월</div>
-          <div class="text-xs font-mono font-bold">${formatReturnSpan(etf.returns.r6m)}</div>
+        <div class="col-span-5 py-4 text-center text-slate-500 text-xs flex justify-center items-center gap-2">
+          <i data-lucide="loader-2" class="w-4 h-4 animate-spin text-sky-400"></i> 실시간 시세 및 수익률 연동 중...
         </div>
       `;
+      lucide.createIcons();
+
+      // Fetch Real Returns
+      fetchEtfReturnsRealtime(etf.code).then(returns => {
+        if (returns) {
+          returnsGrid.innerHTML = `
+            <div class="p-2 bg-[#0f172a] rounded border border-slate-800">
+              <div class="text-[10px] text-slate-400 mb-0.5">1일(전일비)</div>
+              <div class="text-xs font-mono font-bold">${formatReturnSpan(returns.r1d)}</div>
+            </div>
+            <div class="p-2 bg-[#0f172a] rounded border border-slate-800">
+              <div class="text-[10px] text-slate-400 mb-0.5">1주(7일)</div>
+              <div class="text-xs font-mono font-bold">${formatReturnSpan(returns.r1w)}</div>
+            </div>
+            <div class="p-2 bg-[#0f172a] rounded border border-slate-800">
+              <div class="text-[10px] text-slate-400 mb-0.5">1개월</div>
+              <div class="text-xs font-mono font-bold">${formatReturnSpan(returns.r1m)}</div>
+            </div>
+            <div class="p-2 bg-[#0f172a] rounded border border-slate-800">
+              <div class="text-[10px] text-slate-400 mb-0.5">3개월</div>
+              <div class="text-xs font-mono font-bold">${formatReturnSpan(returns.r3m)}</div>
+            </div>
+            <div class="p-2 bg-[#0f172a] rounded border border-slate-800">
+              <div class="text-[10px] text-slate-400 mb-0.5">6개월</div>
+              <div class="text-xs font-mono font-bold">${formatReturnSpan(returns.r6m)}</div>
+            </div>
+          `;
+        } else {
+          returnsGrid.innerHTML = `<div class="col-span-5 py-4 text-center text-rose-500 text-xs font-bold">API 접속 지연 (해외망 또는 CORS 제한)</div>`;
+        }
+      });
 
       const tbody = document.getElementById('holdings-tbody');
       tbody.innerHTML = etf.holdings.map(h => `
@@ -780,8 +796,6 @@
           <td class="p-2.5 text-right font-medium ${h.color || 'text-emerald-400'}">${h.fit}</td>
         </tr>
       `).join('');
-
-      lucide.createIcons();
     }
 
     function renderAssetDonut(assets) {
