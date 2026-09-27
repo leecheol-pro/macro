@@ -37,7 +37,7 @@
         <h1 class="text-sm font-bold text-white flex items-center gap-2">
           MACRO-TO-ETF PIPELINE <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800">Return & Trend Tracker</span>
         </h1>
-        <p class="text-[11px] text-slate-400">1단계: 국면 진단 ➔ 2단계: 승자 자산 (3년 차트) ➔ 3단계: ETF 편입내역(PDF) 및 수익률</p>
+        <p class="text-[11px] text-slate-400">1단계: 국면 진단 ➔ 2단계: 승자 자산 (3년 주간 차트) ➔ 3단계: ETF 편입내역(PDF) 및 수익률</p>
       </div>
     </div>
 
@@ -144,21 +144,21 @@
             <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs font-extrabold border border-amber-500/30">2</span>
             국면 맞춤 승자 상품 (자산군)
           </h2>
-          <span class="text-[10px] text-slate-400">클릭 시 3년 궤적 표출</span>
+          <span class="text-[10px] text-slate-400">클릭 시 156주 주간 궤적 표출</span>
         </div>
         <div class="space-y-2.5" id="asset-container">
           <!-- Injected via JS -->
         </div>
       </div>
 
-      <!-- 3-Year Trend Chart (NEW) -->
+      <!-- 3-Year WEEKLY Trend Chart (156 Weeks) -->
       <div class="bg-[#0f172a] border border-[#1e293b] rounded-xl p-4 shadow-sm">
         <div class="flex items-center justify-between mb-2">
           <h3 class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
             <i data-lucide="line-chart" class="w-3.5 h-3.5 text-sky-400"></i>
-            <span id="trend-chart-title" class="text-sky-300">선택 상품</span> 최근 3년 궤적
+            <span id="trend-chart-title" class="text-sky-300">선택 상품</span> 최근 3년 (주간)
           </h3>
-          <span class="text-[10px] text-slate-500">누적 수익률 추세</span>
+          <span class="text-[10px] text-slate-500">156주 누적 수익률</span>
         </div>
         <div class="h-32 relative flex items-center justify-center">
           <canvas id="trendChart"></canvas>
@@ -238,7 +238,40 @@
   </main>
 
   <script>
-    // DATA PIPELINE: Includes mock `trendData` [2023, 2024, 2025, Current] for the 3-Year Trend Chart
+    // HELPER: Generate 156-week realistic macro trend data (Base 100)
+    // It adds structural drift, macroeconomic cyclical waves (sine), and random market noise.
+    function generateWeeklyTrend(start, end, volatility) {
+      let data = [];
+      const totalWeeks = 156; // 52 weeks * 3 years
+      for(let i=0; i<totalWeeks; i++) {
+        let progress = i / (totalWeeks - 1);
+        // Linear baseline
+        let baseValue = start + (end - start) * progress;
+        // Cycle wave (simulates intermediate market cycles)
+        let macroCycle = Math.sin(progress * Math.PI * 3.5) * (volatility * start * 1.5);
+        // Random noise (simulates weekly volatility)
+        let noise = (Math.random() - 0.5) * volatility * start;
+        
+        let finalVal = baseValue + macroCycle + noise;
+        // Force the final data point to exactly match the target end value
+        if (i === totalWeeks - 1) finalVal = end;
+        data.push(parseFloat(finalVal.toFixed(2)));
+      }
+      return data;
+    }
+
+    // Generate Weekly Trend Arrays (Start 100 -> End Target, Volatility Factor)
+    const TREND_CASH  = generateWeeklyTrend(100, 115.5, 0.002); // Smooth, steady
+    const TREND_GOLD  = generateWeeklyTrend(100, 155.4, 0.04);  // Solid uptrend, moderate vol
+    const TREND_OIL   = generateWeeklyTrend(100, 128.9, 0.06);  // Higher volatility commodity
+    const TREND_DIV   = generateWeeklyTrend(100, 118.5, 0.02);  // Steady value dividend
+    const TREND_LBON  = generateWeeklyTrend(100, 95.4,  0.05);  // Bearish with heavy swings
+    const TREND_KBON  = generateWeeklyTrend(100, 108.5, 0.025); // Domestic bonds, lower swing
+    const TREND_TECH  = generateWeeklyTrend(100, 230.5, 0.08);  // Explosive growth, high vol
+    const TREND_KOSPI = generateWeeklyTrend(100, 135.6, 0.05);  // Cyclical swings
+    const TREND_COP   = generateWeeklyTrend(100, 148.2, 0.06);  // Doctor copper cyclical
+
+    // DATA PIPELINE
     const PIPELINE_DATA = {
       rates_rising: {
         title: "시장금리 상승 & 원자재 우위 국면",
@@ -247,7 +280,7 @@
           {
             id: "cash_sofr", rank: 1, name: "달러 초단기채 / 현금", tag: "이자 수취 & 원금손실 0%", weight: 35, color: "#38bdf8",
             why: "금리가 오를수록 매일 붙는 이자가 커지며 듀레이션이 0이라 채권 평가손실이 전무합니다.",
-            trendData: [100, 105.2, 110.8, 115.5], // 3-Year mock growth
+            trendData: TREND_CASH,
             etfs: [
               {
                 code: "449170", name: "TIGER 미국달러SOFR금리액티브", issuer: "미래에셋", fee: "0.05%", feature: "미국 무위험 지표금리 추종 달러 파킹",
@@ -259,7 +292,7 @@
           {
             id: "gold", rank: 2, name: "순수 금 (Gold) 실물", tag: "통화가치 훼손 & 인플레 헷지", weight: 25, color: "#eab308",
             why: "재정적자 급증에 따른 화폐 신뢰도 하락과 지정학 위기를 방어하는 실물 안전자산입니다.",
-            trendData: [100, 114.5, 132.1, 155.4],
+            trendData: TREND_GOLD,
             etfs: [
               {
                 code: "411060", name: "ACE KRX금현물", issuer: "한국투자", fee: "0.15%", feature: "국내 유일 순금 99.99% 실물 ETF",
@@ -271,7 +304,7 @@
           {
             id: "energy", rank: 3, name: "원유 및 에너지 기업", tag: "유가 상승 마진 직결", weight: 20, color: "#f87171",
             why: "고금리와 인플레이션을 유발하는 주원인인 유가 상승분을 영업이익으로 흡수합니다.",
-            trendData: [100, 108.4, 112.5, 128.9],
+            trendData: TREND_OIL,
             etfs: [
               {
                 code: "219480", name: "TIGER 미국에너지MSCI", issuer: "미래에셋", fee: "0.25%", feature: "엑손모빌, 셰브론 압축",
@@ -283,7 +316,7 @@
           {
             id: "value_div", rank: 4, name: "미국 배당 가치주", tag: "저부채 & 현금배당 방어력", weight: 20, color: "#a855f7",
             why: "낮은 PER과 높은 배당으로 하방을 지킵니다.",
-            trendData: [100, 104.2, 110.1, 118.5],
+            trendData: TREND_DIV,
             etfs: [
               {
                 code: "458730", name: "TIGER 미국배당다우존스", issuer: "미래에셋", fee: "0.01%", feature: "한국판 SCHD",
@@ -301,7 +334,7 @@
           {
             id: "us_lt_bond", rank: 1, name: "미국 초장기 국채 (20Y+)", tag: "자본차익 극대화", weight: 45, color: "#38bdf8",
             why: "금리가 수직 낙하할 때 만기가 긴 국채는 가격 상승 탄력이 가장 폭발적입니다.",
-            trendData: [100, 88.5, 82.1, 95.4], // Bonds fell previously, now rising
+            trendData: TREND_LBON, 
             etfs: [
               {
                 code: "453850", name: "ACE 미국30년국채액티브", issuer: "한국투자", fee: "0.05%", feature: "미국 30년 국채 현물",
@@ -313,7 +346,7 @@
           {
             id: "kr_lt_bond", rank: 2, name: "국내 장기 국고채 (10Y/30Y)", tag: "한은 기준금리 인하", weight: 25, color: "#34d399",
             why: "국내 국고채 평가이익을 극대화합니다.",
-            trendData: [100, 95.2, 92.8, 108.5],
+            trendData: TREND_KBON,
             etfs: [
               {
                 code: "152380", name: "KODEX 국고채10년", issuer: "삼성", fee: "0.07%", feature: "국내 10년 대표 장기채",
@@ -325,7 +358,7 @@
           {
             id: "gold_safe", rank: 3, name: "금 (Gold)", tag: "실질금리 급락 수혜", weight: 20, color: "#eab308",
             why: "금리 인하로 안전자산 수요가 몰립니다.",
-            trendData: [100, 114.5, 132.1, 155.4],
+            trendData: TREND_GOLD,
             etfs: [
               {
                 code: "411060", name: "ACE KRX금현물", issuer: "한국투자", fee: "0.15%", feature: "순금 실물 추종",
@@ -337,7 +370,7 @@
           {
             id: "cash_reserve", rank: 4, name: "현금 및 초단기채", tag: "위기 시 유동성 버퍼", weight: 10, color: "#64748b",
             why: "패닉 시 저점 매수를 위한 현금을 비축합니다.",
-            trendData: [100, 103.5, 107.2, 111.0],
+            trendData: TREND_CASH,
             etfs: [
               {
                 code: "423160", name: "KODEX KOFR금리액티브", issuer: "삼성", fee: "0.03%", feature: "원화 무위험 일일 복리",
@@ -355,7 +388,7 @@
           {
             id: "us_growth", rank: 1, name: "미국 테크 성장주", tag: "저금리 + 고성장", weight: 35, color: "#38bdf8",
             why: "나스닥 테크 기업의 멀티플이 크게 확장됩니다.",
-            trendData: [100, 145.2, 185.7, 230.5],
+            trendData: TREND_TECH,
             etfs: [
               {
                 code: "133690", name: "TIGER 미국나스닥100", issuer: "미래에셋", fee: "0.07%", feature: "미국 100대 성장주",
@@ -367,7 +400,7 @@
           {
             id: "kr_cyclical", rank: 2, name: "한국 수출 주식 (KOSPI)", tag: "교역 레버리지", weight: 30, color: "#f87171",
             why: "한국 반도체 등 시클리컬이 높은 탄력을 보입니다.",
-            trendData: [100, 115.4, 108.2, 135.6],
+            trendData: TREND_KOSPI,
             etfs: [
               {
                 code: "069500", name: "KODEX 200", issuer: "삼성", fee: "0.15%", feature: "대한민국 대표 200대 기업",
@@ -379,7 +412,7 @@
           {
             id: "copper", rank: 3, name: "구리 (닥터 코퍼)", tag: "제조업 활황 실물 수요", weight: 20, color: "#fb923c",
             why: "인프라 투자 확대로 산업용 금속 수요가 폭증합니다.",
-            trendData: [100, 105.8, 122.5, 148.2],
+            trendData: TREND_COP,
             etfs: [
               {
                 code: "138910", name: "TIGER 구리실물", issuer: "미래에셋", fee: "0.45%", feature: "LME 구리 실물 추종",
@@ -391,7 +424,7 @@
           {
             id: "quality_div", rank: 4, name: "글로벌 퀄리티 배당", tag: "안정적 현금흐름 배분", weight: 15, color: "#a855f7",
             why: "안정적 현금 배당을 창출하여 포트폴리오를 지탱합니다.",
-            trendData: [100, 104.2, 110.1, 118.5],
+            trendData: TREND_DIV,
             etfs: [
               {
                 code: "458730", name: "TIGER 미국배당다우존스", issuer: "미래에셋", fee: "0.01%", feature: "배당성장 100종목",
@@ -409,7 +442,7 @@
           {
             id: "gold_pure", rank: 1, name: "순수 금 (Gold)", tag: "스태그 절대 승자", weight: 35, color: "#eab308",
             why: "화폐가치 훼손을 방어하는 유일한 실물 피난처입니다.",
-            trendData: [100, 114.5, 132.1, 155.4],
+            trendData: TREND_GOLD,
             etfs: [
               {
                 code: "411060", name: "ACE KRX금현물", issuer: "한국투자", fee: "0.15%", feature: "순금 실물 추종",
@@ -421,7 +454,7 @@
           {
             id: "sofr_safe", rank: 2, name: "달러 초단기채", tag: "고금리 이자 & 환율 방어", weight: 25, color: "#38bdf8",
             why: "고금리 이자를 고스란히 받으며 안전통화 달러를 확보합니다.",
-            trendData: [100, 105.2, 110.8, 115.5],
+            trendData: TREND_CASH,
             etfs: [
               {
                 code: "449170", name: "TIGER 미국달러SOFR금리액티브", issuer: "미래에셋", fee: "0.05%", feature: "SOFR 지표금리 파킹",
@@ -433,7 +466,7 @@
           {
             id: "value_pricing", rank: 3, name: "원가전가력 배당가치주", tag: "독점적 필수소비재", weight: 20, color: "#a855f7",
             why: "물가 상승분을 제품 가격에 전가할 수 있는 독점적 퀄리티 기업만 이익을 보존합니다.",
-            trendData: [100, 104.2, 110.1, 118.5],
+            trendData: TREND_DIV,
             etfs: [
               {
                 code: "458730", name: "TIGER 미국배당다우존스", issuer: "미래에셋", fee: "0.01%", feature: "미국 퀄리티 가치주",
@@ -445,7 +478,7 @@
           {
             id: "energy_oil", rank: 4, name: "원유 및 에너지", tag: "공급쇼크 수혜", weight: 20, color: "#f87171",
             why: "에너지 공급난으로 고마진을 누립니다.",
-            trendData: [100, 108.4, 112.5, 128.9],
+            trendData: TREND_OIL,
             etfs: [
               {
                 code: "219480", name: "TIGER 미국에너지MSCI", issuer: "미래에셋", fee: "0.25%", feature: "미국 정유 메이저",
@@ -603,37 +636,40 @@
 
       document.getElementById('target-asset-badge').textContent = `선택 상품: ${asset.name}`;
 
-      // Render 3-Year Trend Chart
-      renderTrendChart(asset);
+      // Render 156-Week Trend Chart
+      renderWeeklyTrendChart(asset);
 
-      // Default to first ETF of this asset
       selectedEtfCode = asset.etfs[0].code;
       renderMatchedEtfCards(asset.etfs);
       inspectEtfDetails(asset.etfs[0]);
     }
 
-    // NEW: Render 3-Year Line Chart for the Asset
-    function renderTrendChart(asset) {
+    // Render 156-Week (3-Year) Line Chart
+    function renderWeeklyTrendChart(asset) {
       document.getElementById('trend-chart-title').textContent = asset.name;
       const ctx = document.getElementById('trendChart').getContext('2d');
       if (trendChartObj) trendChartObj.destroy();
 
+      // Create x-axis labels representing weeks
+      const labels = Array.from({length: 156}, (_, i) => `W${i+1}`);
+
       trendChartObj = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: ['23년', '24년', '25년', '26년(현재)'],
+          labels: labels,
           datasets: [{
             label: '누적 성과 (Base 100)',
             data: asset.trendData,
             borderColor: asset.color,
-            backgroundColor: asset.color + '33', // 20% opacity
-            borderWidth: 2,
+            backgroundColor: asset.color + '22', // Very light fill
+            borderWidth: 1.5,
+            pointRadius: 0,           // Hide points by default for clean look
+            pointHoverRadius: 4,      // Show point on hover
             pointBackgroundColor: '#0f172a',
             pointBorderColor: asset.color,
             pointBorderWidth: 2,
-            pointRadius: 4,
             fill: true,
-            tension: 0.3
+            tension: 0.1             // Slight tension for organic look
           }]
         },
         options: {
@@ -642,13 +678,36 @@
           plugins: {
             legend: { display: false },
             tooltip: {
-              callbacks: { label: (ctx) => ` ${ctx.raw}pt` }
+              intersect: false,
+              mode: 'index',
+              callbacks: { 
+                title: (ctx) => `최근 3년 중 ${ctx[0].label}`,
+                label: (ctx) => ` 누적 지수: ${ctx.raw}pt` 
+              }
             }
           },
           scales: {
-            x: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 10 } } },
-            y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 10 } } }
-          }
+            x: { 
+              grid: { display: false }, 
+              ticks: { 
+                maxTicksLimit: 4,
+                color: '#64748b', 
+                font: { size: 10 },
+                callback: function(val, index) {
+                  if (index === 0) return '3년 전';
+                  if (index === 52) return '2년 전';
+                  if (index === 104) return '1년 전';
+                  if (index >= 150) return '현재';
+                  return null;
+                }
+              } 
+            },
+            y: { 
+              grid: { color: '#1e293b' }, 
+              ticks: { color: '#64748b', font: { size: 10 } } 
+            }
+          },
+          interaction: { mode: 'nearest', axis: 'x', intersect: false }
         }
       });
     }
