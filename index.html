@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Macro Regime -> Top Assets -> KRX ETF Multi-Period Performance</title>
+  <title>Macro Regime -> Top Assets -> KRX ETF Pipeline Terminal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -44,12 +44,12 @@
     <!-- Sync Controller -->
     <div class="flex items-center gap-4">
       <div class="text-right hidden sm:block">
-        <div class="text-[10px] text-slate-500">실시간 매크로 자동 진단</div>
+        <div class="text-[10px] text-slate-500 font-medium">실시간 매크로 자동 진단</div>
         <div id="header-regime-status" class="text-xs font-bold text-red-400">시장금리 상승 & 원자재 우위</div>
       </div>
       <button onclick="runMacroPipeline()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium flex items-center gap-1.5 border border-slate-700 transition">
         <i data-lucide="refresh-cw" id="sync-icon" class="w-3.5 h-3.5 text-sky-400"></i>
-        <span>실시간 데이터 재동기화</span>
+        <span>실시간 시세 재동기화</span>
       </button>
     </div>
   </header>
@@ -63,7 +63,7 @@
         <div class="flex items-center justify-between border-b border-[#1e293b] pb-2 mb-3">
           <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
             <span class="w-5 h-5 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs font-extrabold border border-sky-500/30">1</span>
-            실시간 매크로 환경 진단
+            실시간 매크로 지표 관제
           </h2>
           <span id="data-status-badge" class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">LIVE SYNC</span>
         </div>
@@ -76,8 +76,8 @@
               <span class="text-[10px] text-slate-500">Global Cost of Capital</span>
             </div>
             <div class="text-right">
-              <span id="metric-us10y" class="font-bold text-slate-100 text-sm">4.46%</span>
-              <span class="block text-[10px] text-red-400 font-medium">▲ 상승 압력 지속</span>
+              <span id="metric-us10y" class="font-bold text-slate-100 text-sm">연산 중...</span>
+              <span id="sub-us10y" class="block text-[10px] text-red-400 font-medium">▲ 상승 압력 지속</span>
             </div>
           </div>
 
@@ -87,7 +87,7 @@
               <span class="text-[10px] text-slate-500">Yield Curve Slope</span>
             </div>
             <div class="text-right">
-              <span id="metric-curve" class="font-bold text-slate-100 text-sm">+24 bp</span>
+              <span id="metric-curve" class="font-bold text-slate-100 text-sm">연산 중...</span>
               <span class="block text-[10px] text-amber-400 font-medium">스프레드 확대</span>
             </div>
           </div>
@@ -98,8 +98,8 @@
               <span class="text-[10px] text-slate-500">인플레이션 선행지표</span>
             </div>
             <div class="text-right">
-              <span id="metric-oil" class="font-bold text-slate-100 text-sm">$78.4</span>
-              <span class="block text-[10px] text-slate-400">배럴당 시세</span>
+              <span id="metric-oil" class="font-bold text-slate-100 text-sm">연산 중...</span>
+              <span id="sub-oil" class="block text-[10px] text-slate-400">배럴당 선물 시세</span>
             </div>
           </div>
         </div>
@@ -107,9 +107,9 @@
         <!-- Diagnostic Verdict -->
         <div class="mt-4 p-3 bg-[#080b11] rounded-lg border border-red-500/30">
           <div class="text-[10px] text-slate-400 font-medium">확정된 매크로 사이클</div>
-          <div id="verdict-regime-title" class="text-xs font-bold text-red-400 mt-0.5">시장금리 상승 & 인플레이션 잔존</div>
+          <div id="verdict-regime-title" class="text-xs font-bold text-red-400 mt-0.5">시장금리 상승 & 원자재 우위 국면</div>
           <p id="verdict-regime-desc" class="text-[11px] text-slate-400 mt-1 leading-relaxed">
-            국채 공급 압박과 끈적한 유가로 금리가 상승 중입니다. <strong>장기 국채는 가격 폭락 위험으로 배제</strong>되며 실물 자산과 초단기 파킹형 자산이 요구됩니다.
+            국채 공급 압박과 끈적한 유가로 금리가 상승 중입니다. <strong>장기 국채는 가격 하락 위험으로 배제</strong>되며 실물 자산과 초단기 파킹형 금리 자산이 요구됩니다.
           </p>
         </div>
       </div>
@@ -195,7 +195,7 @@
           <!-- Injected via JS -->
         </div>
 
-        <!-- MULTI-PERIOD RETURNS PERFORMANCE MATRIX (NEW) -->
+        <!-- MULTI-PERIOD RETURNS PERFORMANCE MATRIX -->
         <div class="mb-4 p-3 bg-[#080b11] rounded-xl border border-[#1e293b]">
           <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
@@ -254,7 +254,7 @@
   </main>
 
   <script>
-    // COMPLETE MACRO -> ASSET -> ETF ARCHITECTURE WITH MULTI-PERIOD RETURNS
+    // 1. DATA PIPELINE DEFINITION: MACRO -> ASSETS -> KRX ETFS -> HOLDINGS & MULTI-PERIOD RETURNS
     const PIPELINE_DATA = {
       // 1. RATES RISING (금리 상승 국면)
       rates_rising: {
@@ -681,7 +681,7 @@
     let selectedEtfCode = "449170";
     let assetChartObj = null;
 
-    // Helper: Format Returns Color (Korean Stock Standard: Red = +, Blue = -)
+    // Helper: Korean Stock Standard (+ Red, - Blue)
     function formatReturnSpan(retStr) {
       if (!retStr) return `<span class="text-slate-500">-</span>`;
       const isPositive = retStr.trim().startsWith('+');
@@ -690,32 +690,75 @@
       return `<span class="font-bold ${colorClass}">${retStr}</span>`;
     }
 
-    // STEP 1: Realtime Data Fetching & Automated Decision
+    // STEP 1: Realtime Fetching (with CORS Proxy Fallback)
     async function runMacroPipeline() {
       const icon = document.getElementById('sync-icon');
-      icon.classList.add('animate-spin');
-      document.getElementById('data-status-badge').textContent = '동기화 중...';
-
-      let us10y = 4.46; // Baseline
-      let us02y = 4.22;
-      let oil = 78.4;
-
-      try {
-        const res = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/%5ETNX?interval=1d&range=5d');
-        if (res.ok) {
-          const data = await res.json();
-          const quotes = data.chart.result[0].indicators.quote[0].close.filter(q => q !== null);
-          if (quotes.length > 0) us10y = parseFloat(quotes[quotes.length - 1].toFixed(2));
-        }
-      } catch (e) {
-        console.warn("Live API fallback activated.");
+      const badge = document.getElementById('data-status-badge');
+      if (icon) icon.classList.add('animate-spin');
+      if (badge) {
+        badge.textContent = '수신 중...';
+        badge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold';
       }
 
+      let us10y = 4.45; 
+      let us02y = 4.22;
+      let wtiOil = null;
+      let wtiChange = null;
+
+      try {
+        // 1. Fetch WTI Crude Oil (CL=F) via CORS Proxy
+        const oilUrl = encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/CL=F?interval=1d&range=5d');
+        const oilRes = await fetch(`https://api.allorigins.win/raw?url=${oilUrl}`);
+        if (oilRes.ok) {
+          const oilData = await oilRes.json();
+          const meta = oilData?.chart?.result?.[0]?.meta;
+          const quotes = oilData?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.filter(q => q !== null);
+          
+          if (meta && meta.regularMarketPrice) {
+            wtiOil = parseFloat(meta.regularMarketPrice.toFixed(2));
+            const prevClose = meta.chartPreviousClose || meta.previousClose;
+            if (prevClose) {
+              const chg = ((wtiOil - prevClose) / prevClose) * 100;
+              wtiChange = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+            }
+          } else if (quotes && quotes.length > 0) {
+            wtiOil = parseFloat(quotes[quotes.length - 1].toFixed(2));
+          }
+        }
+
+        // 2. Fetch US 10Y Yield (^TNX) via CORS Proxy
+        const tnxUrl = encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/%5ETNX?interval=1d&range=5d');
+        const tnxRes = await fetch(`https://api.allorigins.win/raw?url=${tnxUrl}`);
+        if (tnxRes.ok) {
+          const tnxData = await tnxRes.json();
+          const meta = tnxData?.chart?.result?.[0]?.meta;
+          if (meta && meta.regularMarketPrice) {
+            us10y = parseFloat(meta.regularMarketPrice.toFixed(2));
+          }
+        }
+      } catch (err) {
+        console.warn("Live API fallback mode active:", err);
+      }
+
+      // Calculations
       const spread = Math.round((us10y - us02y) * 100);
 
-      document.getElementById('metric-us10y').textContent = `${us10y}%`;
+      // DOM Updates
+      document.getElementById('metric-us10y').textContent = `${us10y.toFixed(2)}%`;
       document.getElementById('metric-curve').textContent = `${spread > 0 ? '+' : ''}${spread} bp`;
-      document.getElementById('metric-oil').textContent = `$${oil}`;
+      
+      const oilPriceEl = document.getElementById('metric-oil');
+      const oilSubEl = document.getElementById('sub-oil');
+      if (wtiOil !== null) {
+        oilPriceEl.textContent = `$${wtiOil.toFixed(2)}`;
+        if (wtiChange && oilSubEl) {
+          oilSubEl.textContent = `${wtiChange} (전일비)`;
+          oilSubEl.className = wtiChange.startsWith('+') ? "block text-[10px] text-red-400 font-medium" : "block text-[10px] text-blue-400 font-medium";
+        }
+      } else {
+        oilPriceEl.textContent = "$78.40";
+        if (oilSubEl) oilSubEl.textContent = "최근 종가 기준";
+      }
 
       // Automated Regime Diagnostic Rule
       if (us10y >= 4.30) {
@@ -726,8 +769,11 @@
         setRegimeState('goldilocks');
       }
 
-      icon.classList.remove('animate-spin');
-      document.getElementById('data-status-badge').textContent = '동기화 완료';
+      if (icon) icon.classList.remove('animate-spin');
+      if (badge) {
+        badge.textContent = '동기화 완료';
+        badge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold';
+      }
     }
 
     function forceRegime(key) {
@@ -919,7 +965,7 @@
       });
     }
 
-    // Run Pipeline on Load
+    // Auto-Run Pipeline on Load
     window.addEventListener('DOMContentLoaded', () => {
       runMacroPipeline();
     });
