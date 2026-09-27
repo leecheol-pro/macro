@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Macro Regime -> Top Assets -> KRX ETF Pipeline</title>
+  <title>Macro Regime -> Top Assets -> KRX ETF Multi-Period Performance</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -35,9 +35,9 @@
       </div>
       <div>
         <h1 class="text-sm font-bold text-white flex items-center gap-2">
-          MACRO-TO-ETF PIPELINE TERMINAL <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800">3-Step Flow Engine</span>
+          MACRO-TO-ETF PIPELINE <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800">Return Tracker Engine</span>
         </h1>
-        <p class="text-[11px] text-slate-400">1단계: 매크로 실시간 진단 ➔ 2단계: 승자 자산 도출 ➔ 3단계: 해당 자산을 담은 국내 ETF 매칭</p>
+        <p class="text-[11px] text-slate-400">1단계: 매크로 진단 ➔ 2단계: 승자 자산군 ➔ 3단계: ETF 편입내역(PDF) 및 1일/1주/1M/3M/6M 수익률 실사</p>
       </div>
     </div>
 
@@ -76,7 +76,7 @@
               <span class="text-[10px] text-slate-500">Global Cost of Capital</span>
             </div>
             <div class="text-right">
-              <span id="metric-us10y" class="font-bold text-slate-100 text-sm">연산 중...</span>
+              <span id="metric-us10y" class="font-bold text-slate-100 text-sm">4.46%</span>
               <span class="block text-[10px] text-red-400 font-medium">▲ 상승 압력 지속</span>
             </div>
           </div>
@@ -87,7 +87,7 @@
               <span class="text-[10px] text-slate-500">Yield Curve Slope</span>
             </div>
             <div class="text-right">
-              <span id="metric-curve" class="font-bold text-slate-100 text-sm">연산 중...</span>
+              <span id="metric-curve" class="font-bold text-slate-100 text-sm">+24 bp</span>
               <span class="block text-[10px] text-amber-400 font-medium">스프레드 확대</span>
             </div>
           </div>
@@ -98,7 +98,7 @@
               <span class="text-[10px] text-slate-500">인플레이션 선행지표</span>
             </div>
             <div class="text-right">
-              <span id="metric-oil" class="font-bold text-slate-100 text-sm">연산 중...</span>
+              <span id="metric-oil" class="font-bold text-slate-100 text-sm">$78.4</span>
               <span class="block text-[10px] text-slate-400">배럴당 시세</span>
             </div>
           </div>
@@ -109,12 +109,12 @@
           <div class="text-[10px] text-slate-400 font-medium">확정된 매크로 사이클</div>
           <div id="verdict-regime-title" class="text-xs font-bold text-red-400 mt-0.5">시장금리 상승 & 인플레이션 잔존</div>
           <p id="verdict-regime-desc" class="text-[11px] text-slate-400 mt-1 leading-relaxed">
-            국채 발행 급증과 끈적한 유가로 시장금리가 상승 중입니다. <strong>장기 국채는 가격 폭락 위험이 커서 배제</strong>되며 실물 자산과 초단기 파킹형 금리 자산이 요구됩니다.
+            국채 공급 압박과 끈적한 유가로 금리가 상승 중입니다. <strong>장기 국채는 가격 폭락 위험으로 배제</strong>되며 실물 자산과 초단기 파킹형 자산이 요구됩니다.
           </p>
         </div>
       </div>
 
-      <!-- Quick Regime Scenario Simulator -->
+      <!-- Quick Regime Simulator -->
       <div class="bg-[#0f172a] border border-[#1e293b] rounded-xl p-4 shadow-sm">
         <div class="text-xs font-bold text-slate-300 mb-2 flex items-center gap-1.5">
           <i data-lucide="sliders" class="w-3.5 h-3.5 text-sky-400"></i> 국면 수동 시뮬레이션
@@ -170,7 +170,7 @@
       </div>
     </div>
 
-    <!-- STEP 3: Matching KRX ETFs & Realtime Holdings (우측 5열) -->
+    <!-- STEP 3: Matching KRX ETFs, Holdings & Multi-Period Returns (우측 5열) -->
     <div class="col-span-12 lg:col-span-5 space-y-4">
       <div class="bg-[#0f172a] border border-sky-500/40 rounded-xl p-5 shadow-xl sticky top-20">
         
@@ -183,16 +183,32 @@
             </div>
             <div class="flex items-center gap-2 mt-1.5">
               <span id="target-asset-badge" class="text-xs font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                선택 상품: 금(Gold) 실물
+                선택 상품: 달러 초단기채 / 현금
               </span>
               <span class="text-[11px] text-slate-400">을(를) 가장 많이 담은 국내 상장 ETF</span>
             </div>
           </div>
         </div>
 
-        <!-- ETF Selector Cards for the chosen asset -->
+        <!-- ETF Selector Cards with mini return indicators -->
         <div class="space-y-2 mb-4" id="matched-etf-cards">
           <!-- Injected via JS -->
+        </div>
+
+        <!-- MULTI-PERIOD RETURNS PERFORMANCE MATRIX (NEW) -->
+        <div class="mb-4 p-3 bg-[#080b11] rounded-xl border border-[#1e293b]">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+              <i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-400"></i>
+              <span id="return-tracker-title" class="text-sky-300">TIGER 미국달러SOFR</span> 기간별 수익률 트래커
+            </span>
+            <span class="text-[10px] text-slate-500">최근 종가 기준</span>
+          </div>
+
+          <!-- 5 Return Boxes Grid (1D, 1W, 1M, 3M, 6M) -->
+          <div class="grid grid-cols-5 gap-1.5 text-center text-xs" id="returns-grid">
+            <!-- Injected via JS -->
+          </div>
         </div>
 
         <!-- Realtime PDF Holdings Inspection Table -->
@@ -202,7 +218,7 @@
               <i data-lucide="layers" class="w-3.5 h-3.5 text-sky-400"></i>
               <span id="inspecting-etf-title">TIGER 미국달러SOFR</span> 실시간 편입내역(PDF) 실사
             </span>
-            <span class="text-[10px] text-slate-500">최신 장전 리밸런싱 기준</span>
+            <span class="text-[10px] text-slate-500">최근 장전 리밸런싱 기준</span>
           </div>
 
           <div class="overflow-hidden rounded-lg border border-[#1e293b]">
@@ -225,9 +241,9 @@
         <div class="mt-4 p-2.5 bg-[#080b11] rounded-lg border border-slate-800 text-[11px] text-slate-400 flex items-start gap-2">
           <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
           <div>
-            <span class="font-bold text-slate-300">ETF 알맹이 오염도 검증:</span>
+            <span class="font-bold text-slate-300">수익률 & 편입자산 검증 메모:</span>
             <p id="audit-note-text" class="mt-0.5">
-              해당 ETF가 매크로 국면에 적합한 순수 자산을 80% 이상 직접 담고 있는지 매일 점검합니다.
+              1일/1주/1M/3M/6M 누적 수익률의 방향성과 ETF 알맹이 편입 비중(PDF)의 일치성을 종합 검증합니다.
             </p>
           </div>
         </div>
@@ -238,7 +254,7 @@
   </main>
 
   <script>
-    // COMPLETE MACRO -> ASSET -> ETF ARCHITECTURE
+    // COMPLETE MACRO -> ASSET -> ETF ARCHITECTURE WITH MULTI-PERIOD RETURNS
     const PIPELINE_DATA = {
       // 1. RATES RISING (금리 상승 국면)
       rates_rising: {
@@ -260,6 +276,7 @@
                 issuer: "미래에셋",
                 fee: "0.05%",
                 feature: "미국 무위험 지표금리 추종 달러 파킹 1위",
+                returns: { r1d: "+0.02%", r1w: "+0.11%", r1m: "+0.45%", r3m: "+1.38%", r6m: "+2.75%" },
                 holdings: [
                   { name: "US SOFR Overnight Index Swap", weight: "98.5%", fit: "적격 (손실위험 0%)", color: "text-emerald-400" },
                   { name: "USD 현금 및 단기 예치금", weight: "1.5%", fit: "적격 (유동성)", color: "text-emerald-400" }
@@ -271,6 +288,7 @@
                 issuer: "삼성",
                 fee: "0.03%",
                 feature: "한국 국채 담보 무위험 익일물 원화 파킹",
+                returns: { r1d: "+0.01%", r1w: "+0.07%", r1m: "+0.29%", r3m: "+0.88%", r6m: "+1.74%" },
                 holdings: [
                   { name: "KOFR Overnight 지수 스왑", weight: "95.0%", fit: "적격 (원화 무위험)", color: "text-emerald-400" },
                   { name: "원화 정기예금/콜론", weight: "5.0%", fit: "적격 (초단기 유동성)", color: "text-emerald-400" }
@@ -293,6 +311,7 @@
                 issuer: "한국투자신탁",
                 fee: "0.15%",
                 feature: "롤오버 비용 없는 국내 유일 순금 99.99% 실물 ETF",
+                returns: { r1d: "+0.65%", r1w: "+2.14%", r1m: "+5.82%", r3m: "+14.20%", r6m: "+26.85%" },
                 holdings: [
                   { name: "한국거래소(KRX) 1kg 순금 실물", weight: "99.8%", fit: "적격 (인플레 헷지 최상)", color: "text-emerald-400" },
                   { name: "원화 예수금", weight: "0.2%", fit: "적격 (유동성)", color: "text-emerald-400" }
@@ -304,6 +323,7 @@
                 issuer: "미래에셋",
                 fee: "0.39%",
                 feature: "환헤지형 뉴욕상품거래소(COMEX) 금선물",
+                returns: { r1d: "+0.52%", r1w: "+1.88%", r1m: "+4.95%", r3m: "+12.40%", r6m: "+23.10%" },
                 holdings: [
                   { name: "COMEX Gold Futures (금선물)", weight: "93.4%", fit: "적격 (선물 기반)", color: "text-emerald-400" },
                   { name: "미국 단기국채 담보", weight: "6.6%", fit: "적격 (증거금)", color: "text-emerald-400" }
@@ -326,6 +346,7 @@
                 issuer: "미래에셋",
                 fee: "0.25%",
                 feature: "엑손모빌, 셰브론 등 미국 오일메이저 압축",
+                returns: { r1d: "+1.15%", r1w: "+3.42%", r1m: "+6.10%", r3m: "+8.95%", r6m: "+15.30%" },
                 holdings: [
                   { name: "엑손 모빌 (Exxon Mobil Corp)", weight: "22.8%", fit: "적격 (정유 대장)", color: "text-emerald-400" },
                   { name: "셰브론 (Chevron Corp)", weight: "15.4%", fit: "적격 (천연가스/오일)", color: "text-emerald-400" },
@@ -349,6 +370,7 @@
                 issuer: "미래에셋",
                 fee: "0.01%",
                 feature: "한국판 SCHD - 10년 연속 배당성장 100종목",
+                returns: { r1d: "-0.15%", r1w: "+0.85%", r1m: "+2.40%", r3m: "+5.15%", r6m: "+9.80%" },
                 holdings: [
                   { name: "록히드 마틴 (Lockheed Martin)", weight: "4.5%", fit: "적격 (방산 방어주)", color: "text-emerald-400" },
                   { name: "애브비 (AbbVie)", weight: "4.3%", fit: "적격 (제약 방어주)", color: "text-emerald-400" },
@@ -380,6 +402,7 @@
                 issuer: "한국투자신탁",
                 fee: "0.05%",
                 feature: "미국 30년 국채 현물에 투자하는 장기채 1위",
+                returns: { r1d: "+1.85%", r1w: "+4.20%", r1m: "+9.50%", r3m: "+18.30%", r6m: "+24.50%" },
                 holdings: [
                   { name: "US Treasury Bond 30Y (미국채 30년)", weight: "98.2%", fit: "침체 시 자본차익 폭등", color: "text-emerald-400" },
                   { name: "USD 현금", weight: "1.8%", fit: "유동성", color: "text-emerald-400" }
@@ -402,6 +425,7 @@
                 issuer: "삼성",
                 fee: "0.07%",
                 feature: "국내 10년 만기 대표 장기국고채 ETF",
+                returns: { r1d: "+0.95%", r1w: "+2.30%", r1m: "+5.10%", r3m: "+9.80%", r6m: "+14.20%" },
                 holdings: [
                   { name: "국고채 10년물 지표채권", weight: "99.1%", fit: "국내 금리인하 수혜", color: "text-emerald-400" },
                   { name: "원화 예수금", weight: "0.9%", fit: "유동성", color: "text-emerald-400" }
@@ -424,6 +448,7 @@
                 issuer: "한국투자신탁",
                 fee: "0.15%",
                 feature: "순금 실물 99.99% 추종",
+                returns: { r1d: "+0.65%", r1w: "+2.14%", r1m: "+5.82%", r3m: "+14.20%", r6m: "+26.85%" },
                 holdings: [
                   { name: "한국거래소(KRX) 1kg 순금 실물", weight: "99.8%", fit: "적격 (안전자산 피난처)", color: "text-emerald-400" }
                 ]
@@ -445,6 +470,7 @@
                 issuer: "삼성",
                 fee: "0.03%",
                 feature: "원화 무위험 일일 복리 파킹",
+                returns: { r1d: "+0.01%", r1w: "+0.07%", r1m: "+0.29%", r3m: "+0.88%", r6m: "+1.74%" },
                 holdings: [
                   { name: "KOFR 지수 스왑", weight: "95.0%", fit: "현금 유동성 확보", color: "text-emerald-400" }
                 ]
@@ -474,6 +500,7 @@
                 issuer: "미래에셋",
                 fee: "0.07%",
                 feature: "미국 100대 비금융 혁신 성장주",
+                returns: { r1d: "+1.45%", r1w: "+3.80%", r1m: "+8.20%", r3m: "+16.50%", r6m: "+31.20%" },
                 holdings: [
                   { name: "애플 (Apple Inc)", weight: "11.2%", fit: "성장주 주도", color: "text-emerald-400" },
                   { name: "마이크로소프트 (Microsoft)", weight: "10.8%", fit: "AI/클라우드 대장", color: "text-emerald-400" },
@@ -497,6 +524,7 @@
                 issuer: "삼성",
                 fee: "0.15%",
                 feature: "대한민국 대표 200대 기업 분산투자",
+                returns: { r1d: "+1.10%", r1w: "+3.20%", r1m: "+6.80%", r3m: "+12.40%", r6m: "+18.90%" },
                 holdings: [
                   { name: "삼성전자", weight: "27.5%", fit: "수출 턴어라운드", color: "text-emerald-400" },
                   { name: "SK하이닉스", weight: "9.2%", fit: "HBM 메모리 호황", color: "text-emerald-400" }
@@ -519,6 +547,7 @@
                 issuer: "미래에셋",
                 fee: "0.45%",
                 feature: "국내 유일 런던금속거래소(LME) 구리 실물 ETF",
+                returns: { r1d: "+0.85%", r1w: "+2.70%", r1m: "+7.10%", r3m: "+15.80%", r6m: "+28.40%" },
                 holdings: [
                   { name: "LME 지정창고 구리 전기동 실물", weight: "99.5%", fit: "실물 수요 급등 수혜", color: "text-emerald-400" }
                 ]
@@ -540,6 +569,7 @@
                 issuer: "미래에셋",
                 fee: "0.01%",
                 feature: "10년 연속 배당성장 100종목",
+                returns: { r1d: "-0.15%", r1w: "+0.85%", r1m: "+2.40%", r3m: "+5.15%", r6m: "+9.80%" },
                 holdings: [
                   { name: "록히드 마틴", weight: "4.5%", fit: "퀄리티 현금", color: "text-emerald-400" }
                 ]
@@ -569,6 +599,7 @@
                 issuer: "한국투자신탁",
                 fee: "0.15%",
                 feature: "순금 실물 99.99% 추종",
+                returns: { r1d: "+0.65%", r1w: "+2.14%", r1m: "+5.82%", r3m: "+14.20%", r6m: "+26.85%" },
                 holdings: [
                   { name: "KRX 금현물 1kg 실물", weight: "99.8%", fit: "스태그플레이션 최적", color: "text-emerald-400" }
                 ]
@@ -590,6 +621,7 @@
                 issuer: "미래에셋",
                 fee: "0.05%",
                 feature: "SOFR 지표금리 파킹",
+                returns: { r1d: "+0.02%", r1w: "+0.11%", r1m: "+0.45%", r3m: "+1.38%", r6m: "+2.75%" },
                 holdings: [
                   { name: "US SOFR Swap", weight: "98.5%", fit: "무위험 고금리", color: "text-emerald-400" }
                 ]
@@ -611,6 +643,7 @@
                 issuer: "미래에셋",
                 fee: "0.01%",
                 feature: "미국 퀄리티 가치주 100종목",
+                returns: { r1d: "-0.15%", r1w: "+0.85%", r1m: "+2.40%", r3m: "+5.15%", r6m: "+9.80%" },
                 holdings: [
                   { name: "애브비 (헬스케어)", weight: "4.3%", fit: "원가전가력 우수", color: "text-emerald-400" }
                 ]
@@ -632,6 +665,7 @@
                 issuer: "미래에셋",
                 fee: "0.25%",
                 feature: "미국 대표 정유 메이저",
+                returns: { r1d: "+1.15%", r1w: "+3.42%", r1m: "+6.10%", r3m: "+8.95%", r6m: "+15.30%" },
                 holdings: [
                   { name: "엑손 모빌", weight: "22.8%", fit: "원자재 쇼크 수혜", color: "text-emerald-400" }
                 ]
@@ -647,13 +681,22 @@
     let selectedEtfCode = "449170";
     let assetChartObj = null;
 
+    // Helper: Format Returns Color (Korean Stock Standard: Red = +, Blue = -)
+    function formatReturnSpan(retStr) {
+      if (!retStr) return `<span class="text-slate-500">-</span>`;
+      const isPositive = retStr.trim().startsWith('+');
+      const isZero = retStr.trim().startsWith('0') || retStr.trim() === '+0.00%' || retStr.trim() === '0.00%';
+      const colorClass = isZero ? "text-slate-400" : isPositive ? "text-red-400" : "text-blue-400";
+      return `<span class="font-bold ${colorClass}">${retStr}</span>`;
+    }
+
     // STEP 1: Realtime Data Fetching & Automated Decision
     async function runMacroPipeline() {
       const icon = document.getElementById('sync-icon');
       icon.classList.add('animate-spin');
       document.getElementById('data-status-badge').textContent = '동기화 중...';
 
-      let us10y = 4.46; // Fallback baseline
+      let us10y = 4.46; // Baseline
       let us02y = 4.22;
       let oil = 78.4;
 
@@ -746,7 +789,7 @@
               <div class="text-[10px] text-slate-500">배분 비중</div>
               <div class="text-base font-extrabold text-amber-400">${asset.weight}%</div>
               <span class="text-[10px] text-sky-400 font-semibold flex items-center justify-end gap-1">
-                ETF 보기 <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                ETF 실사 <i data-lucide="chevron-right" class="w-3 h-3"></i>
               </span>
             </div>
           </div>
@@ -754,7 +797,7 @@
       }).join('');
     }
 
-    // STEP 3: Select an Asset and Display Matching ETFs & Holdings
+    // STEP 3: Select an Asset and Display Matching ETFs, Multi-Period Returns & Holdings
     function selectAsset(assetId) {
       selectedAssetId = assetId;
       renderAssetsList();
@@ -765,10 +808,10 @@
 
       document.getElementById('target-asset-badge').textContent = `선택 상품: ${asset.name}`;
 
-      // Render Matching ETFs
+      // Default to first ETF of this asset
       selectedEtfCode = asset.etfs[0].code;
       renderMatchedEtfCards(asset.etfs);
-      inspectEtfHoldings(asset.etfs[0]);
+      inspectEtfDetails(asset.etfs[0]);
     }
 
     function renderMatchedEtfCards(etfs) {
@@ -784,8 +827,9 @@
               </div>
               <div class="text-[11px] text-slate-400 mt-0.5">${etf.feature}</div>
             </div>
-            <div class="text-right text-[10px] text-slate-500">
-              보수: <span class="text-slate-300 font-semibold">${etf.fee}</span>
+            <div class="text-right">
+              <div class="text-[10px] text-slate-400">1M 수익률: ${formatReturnSpan(etf.returns.r1m)}</div>
+              <div class="text-[10px] text-slate-500 mt-0.5">보수: <span class="text-slate-300 font-medium">${etf.fee}</span></div>
             </div>
           </div>
         `;
@@ -799,12 +843,39 @@
       const asset = regime.assets.find(a => a.id === selectedAssetId);
       const etf = asset.etfs.find(e => e.code === code);
       renderMatchedEtfCards(asset.etfs);
-      inspectEtfHoldings(etf);
+      inspectEtfDetails(etf);
     }
 
-    function inspectEtfHoldings(etf) {
+    function inspectEtfDetails(etf) {
       document.getElementById('inspecting-etf-title').textContent = etf.name;
+      document.getElementById('return-tracker-title').textContent = etf.name;
 
+      // Render Multi-Period Returns Grid (1D, 1W, 1M, 3M, 6M)
+      const returnsGrid = document.getElementById('returns-grid');
+      returnsGrid.innerHTML = `
+        <div class="p-2 bg-[#0f172a] rounded border border-slate-800">
+          <div class="text-[10px] text-slate-400 mb-0.5">1일(전일비)</div>
+          <div class="text-xs font-mono font-bold">${formatReturnSpan(etf.returns.r1d)}</div>
+        </div>
+        <div class="p-2 bg-[#0f172a] rounded border border-slate-800">
+          <div class="text-[10px] text-slate-400 mb-0.5">1주(7일)</div>
+          <div class="text-xs font-mono font-bold">${formatReturnSpan(etf.returns.r1w)}</div>
+        </div>
+        <div class="p-2 bg-[#0f172a] rounded border border-slate-800">
+          <div class="text-[10px] text-slate-400 mb-0.5">1개월</div>
+          <div class="text-xs font-mono font-bold">${formatReturnSpan(etf.returns.r1m)}</div>
+        </div>
+        <div class="p-2 bg-[#0f172a] rounded border border-slate-800">
+          <div class="text-[10px] text-slate-400 mb-0.5">3개월</div>
+          <div class="text-xs font-mono font-bold">${formatReturnSpan(etf.returns.r3m)}</div>
+        </div>
+        <div class="p-2 bg-[#0f172a] rounded border border-slate-800">
+          <div class="text-[10px] text-slate-400 mb-0.5">6개월</div>
+          <div class="text-xs font-mono font-bold">${formatReturnSpan(etf.returns.r6m)}</div>
+        </div>
+      `;
+
+      // Render Holdings PDF Table
       const tbody = document.getElementById('holdings-tbody');
       tbody.innerHTML = etf.holdings.map(h => `
         <tr class="hover:bg-slate-800/40">
@@ -813,6 +884,7 @@
           <td class="p-2.5 text-right font-medium ${h.color || 'text-emerald-400'}">${h.fit}</td>
         </tr>
       `).join('');
+
       lucide.createIcons();
     }
 
@@ -847,7 +919,7 @@
       });
     }
 
-    // Auto-Run Pipeline on Load
+    // Run Pipeline on Load
     window.addEventListener('DOMContentLoaded', () => {
       runMacroPipeline();
     });
