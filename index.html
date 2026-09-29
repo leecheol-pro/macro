@@ -189,7 +189,7 @@
 
     // FRED 무료 API 키를 여기에 붙여넣으세요 (따옴표 안). 비워두면 CSV 방식으로 시도합니다.
     // 발급: https://fred.stlouisfed.org/docs/api/api_key.html
-    const FRED_API_KEY = 'b7e541137ac2b8fc5ac4fadbe25d9365';
+    const FRED_API_KEY = '';
 
     const CORS_PROXIES = [
       ...(WORKER_PROXY_URL ? [(url) => `${WORKER_PROXY_URL}/?url=${encodeURIComponent(url)}`] : []),
@@ -273,10 +273,10 @@
         title: "리플레이션 (성장↑ · 물가↑)", text: "text-red-400", border: "border-red-500", bg: "bg-red-500/10",
         desc: "경기는 확장되는데 물가 압력도 커지는 과열 국면입니다. 실물자산과 경기민감 가치주가 강하고, 금리 상승 압력 때문에 장기채와 고밸류 성장주는 부담입니다.",
         assets: [
-          { id: "commod", name: "원자재 (에너지·산업금속)", tag: "수요 증가 + 물가 상승의 직접 수혜", weight: 30, color: "#f87171", ticker: "DBC", why: "경기 확장으로 수요가 늘고 가격 자체가 물가를 끌어올리는 자산이라 이 국면의 대표 승자입니다." },
-          { id: "value", name: "가치주·경기민감주", tag: "에너지·소재·산업재 중심", weight: 30, color: "#fb923c", ticker: "IWD", why: "이익이 경기와 물가에 함께 연동되고, 금리 상승기에 성장주보다 밸류에이션 부담이 작습니다." },
-          { id: "em", name: "신흥국 주식", tag: "글로벌 수요·원자재 레버리지", weight: 20, color: "#38bdf8", ticker: "EEM", why: "글로벌 경기 확장과 원자재 가격 상승의 수혜를 받는 경향이 있습니다." },
-          { id: "fin", name: "금융(은행)주", tag: "금리 상승·대출 증가 수혜", weight: 20, color: "#a855f7", ticker: "XLF", why: "경기 확장기 대출 수요와 예대마진 개선의 혜택을 받습니다." }
+          { id: "commod", name: "원자재 (에너지·산업금속)", tag: "수요 증가 + 물가 상승의 직접 수혜", weight: 30, color: "#f87171", ticker: "DBC", why: "경기 확장으로 수요가 늘고 가격 자체가 물가를 끌어올리는 자산이라 이 국면의 대표 승자입니다.", kr: [] },
+          { id: "value", name: "가치주·경기민감주", tag: "에너지·소재·산업재 중심", weight: 30, color: "#fb923c", ticker: "IWD", why: "이익이 경기와 물가에 함께 연동되고, 금리 상승기에 성장주보다 밸류에이션 부담이 작습니다.", kr: [] },
+          { id: "em", name: "신흥국 주식", tag: "글로벌 수요·원자재 레버리지", weight: 20, color: "#38bdf8", ticker: "EEM", why: "글로벌 경기 확장과 원자재 가격 상승의 수혜를 받는 경향이 있습니다.", kr: [] },
+          { id: "fin", name: "금융(은행)주", tag: "금리 상승·대출 증가 수혜", weight: 20, color: "#a855f7", ticker: "XLF", why: "경기 확장기 대출 수요와 예대마진 개선의 혜택을 받습니다.", kr: [{ name: "KODEX 은행", code: "091170" }] }
         ],
         avoid: "장기국채(금리 상승 시 가격 하락), 고밸류 성장주(할인율 상승으로 멀티플 압박), 장기 고정금리 채권."
       },
@@ -284,10 +284,10 @@
         title: "골디락스 (성장↑ · 물가↓)", text: "text-emerald-400", border: "border-emerald-500", bg: "bg-emerald-500/10",
         desc: "성장은 견조한데 물가는 안정적인, 위험자산에 가장 우호적인 국면입니다. 금리 부담이 낮아 성장주와 신용자산이 강합니다.",
         assets: [
-          { id: "growth", name: "미국 성장주·기술주", tag: "저물가·저금리 + 이익 성장", weight: 35, color: "#38bdf8", ticker: "QQQ", why: "할인율 부담이 낮은 가운데 이익이 늘어 멀티플 확장과 이익 성장이 동시에 나옵니다." },
-          { id: "equity", name: "주식 전반 (대형주)", tag: "시장 베타", weight: 25, color: "#34d399", ticker: "VTI", why: "성장이 받쳐주고 물가가 안정적이라 주식 전반의 리스크 프리미엄이 유리합니다." },
-          { id: "hy", name: "하이일드 회사채", tag: "부도 위험 낮음 + 높은 이자", weight: 20, color: "#eab308", ticker: "HYG", why: "성장 국면에서는 부도율이 낮아 스프레드 수익이 안정적으로 쌓입니다." },
-          { id: "disc", name: "경기소비재", tag: "소비 여력 확대", weight: 20, color: "#a855f7", ticker: "XLY", why: "물가 부담 없이 실질소득이 늘어 소비 지출이 개선됩니다." }
+          { id: "growth", name: "미국 성장주·기술주", tag: "저물가·저금리 + 이익 성장", weight: 35, color: "#38bdf8", ticker: "QQQ", why: "할인율 부담이 낮은 가운데 이익이 늘어 멀티플 확장과 이익 성장이 동시에 나옵니다.", kr: [{ name: "TIGER 미국나스닥100", code: "133690" }, { name: "KODEX 미국나스닥100", code: "379810" }] },
+          { id: "equity", name: "주식 전반 (대형주)", tag: "시장 베타", weight: 25, color: "#34d399", ticker: "VTI", why: "성장이 받쳐주고 물가가 안정적이라 주식 전반의 리스크 프리미엄이 유리합니다.", kr: [{ name: "TIGER 미국S&P500", code: "360750" }, { name: "KODEX 미국S&P500", code: "379800" }] },
+          { id: "hy", name: "하이일드 회사채", tag: "부도 위험 낮음 + 높은 이자", weight: 20, color: "#eab308", ticker: "HYG", why: "성장 국면에서는 부도율이 낮아 스프레드 수익이 안정적으로 쌓입니다.", kr: [{ name: "KODEX iShares미국하이일드액티브", code: "468380" }] },
+          { id: "disc", name: "경기소비재", tag: "소비 여력 확대", weight: 20, color: "#a855f7", ticker: "XLY", why: "물가 부담 없이 실질소득이 늘어 소비 지출이 개선됩니다.", kr: [] }
         ],
         avoid: "금(안전자산 수요 감소), 현금성 자산(기회비용), 방어주 비중 과다."
       },
@@ -295,10 +295,10 @@
         title: "스태그플레이션 (성장↓ · 물가↑)", text: "text-amber-400", border: "border-amber-500", bg: "bg-amber-500/10",
         desc: "경기는 둔화되는데 물가는 오르는 최악의 조합으로, 주식과 채권이 함께 부진하기 쉽습니다. 실물자산·현금성 자산·가격전가력 있는 방어주로 버팁니다.",
         assets: [
-          { id: "gold", name: "금", tag: "화폐가치 훼손·실질금리 방어", weight: 35, color: "#eab308", ticker: "GC=F", why: "물가 상승과 경기 불안이 겹칠 때 주식·채권의 대안 헷지로 가장 자주 언급되는 자산입니다." },
-          { id: "cash", name: "달러 초단기채", tag: "듀레이션 0 + 높은 이자", weight: 25, color: "#38bdf8", ticker: "SHV", why: "금리 상승에도 평가손실이 거의 없고 이자 수익이 물가를 일부 방어합니다." },
-          { id: "staples", name: "필수소비재·유틸리티 방어주", tag: "가격 전가력 + 안정적 수요", weight: 25, color: "#34d399", ticker: "XLP", why: "경기 둔화에도 수요가 유지되고 원가 상승분을 가격에 전가할 여력이 상대적으로 큽니다." },
-          { id: "energy", name: "에너지 (제한적 비중)", tag: "공급 쇼크형 인플레 수혜", weight: 15, color: "#f87171", ticker: "XLE", why: "물가 상승의 원인이 공급 쪽일 때 이익을 방어하지만, 침체가 깊어지면 수요 감소 위험이 있어 비중을 제한합니다." }
+          { id: "gold", name: "금", tag: "화폐가치 훼손·실질금리 방어", weight: 35, color: "#eab308", ticker: "GC=F", why: "물가 상승과 경기 불안이 겹칠 때 주식·채권의 대안 헷지로 가장 자주 언급되는 자산입니다.", kr: [{ name: "ACE KRX금현물", code: "411060" }, { name: "KODEX 골드선물(H)", code: "132030" }] },
+          { id: "cash", name: "달러 초단기채", tag: "듀레이션 0 + 높은 이자", weight: 25, color: "#38bdf8", ticker: "SHV", why: "금리 상승에도 평가손실이 거의 없고 이자 수익이 물가를 일부 방어합니다.", kr: [{ name: "TIGER 미국달러SOFR금리액티브", code: "449170" }, { name: "KODEX KOFR금리액티브", code: "423160" }] },
+          { id: "staples", name: "필수소비재·유틸리티 방어주", tag: "가격 전가력 + 안정적 수요", weight: 25, color: "#34d399", ticker: "XLP", why: "경기 둔화에도 수요가 유지되고 원가 상승분을 가격에 전가할 여력이 상대적으로 큽니다.", kr: [{ name: "KODEX 필수소비재", code: "266410" }] },
+          { id: "energy", name: "에너지 (제한적 비중)", tag: "공급 쇼크형 인플레 수혜", weight: 15, color: "#f87171", ticker: "XLE", why: "물가 상승의 원인이 공급 쪽일 때 이익을 방어하지만, 침체가 깊어지면 수요 감소 위험이 있어 비중을 제한합니다.", kr: [{ name: "TIGER 미국에너지MSCI(합성)", code: "219480" }] }
         ],
         avoid: "장기국채(물가 상승 + 금리 부담), 고밸류 성장주, 하이일드(경기 둔화로 부도 위험 상승)."
       },
@@ -306,10 +306,10 @@
         title: "침체/디플레이션 (성장↓ · 물가↓)", text: "text-sky-400", border: "border-sky-500", bg: "bg-sky-500/10",
         desc: "성장이 꺾이고 물가도 내려가면서 금리 인하 기대가 커지는 국면입니다. 듀레이션이 긴 국채와 우량 채권, 방어주가 유리합니다.",
         assets: [
-          { id: "ltbond", name: "미국 장기국채 (20Y+)", tag: "금리 인하 시 자본차익 극대화", weight: 40, color: "#38bdf8", ticker: "TLT", why: "금리가 내려갈 때 만기가 긴 채권일수록 가격 상승폭이 큽니다." },
-          { id: "ig", name: "우량 회사채", tag: "안정적 이자 + 금리 하락 수혜", weight: 25, color: "#34d399", ticker: "LQD", why: "국채보다 이자가 높으면서 신용 위험은 낮아 침체기 채권 포트폴리오의 축이 됩니다." },
-          { id: "defensive", name: "방어주 (헬스케어·유틸리티)", tag: "경기 둔감 수요", weight: 20, color: "#a855f7", ticker: "XLV", why: "경기와 무관하게 수요가 유지되어 주식 중에서는 하방이 상대적으로 단단합니다." },
-          { id: "gold2", name: "금", tag: "안전자산 수요·실질금리 하락", weight: 15, color: "#eab308", ticker: "GC=F", why: "금리 인하와 위험회피 심리가 함께 작용하는 국면에서 분산 효과를 냅니다." }
+          { id: "ltbond", name: "미국 장기국채 (20Y+)", tag: "금리 인하 시 자본차익 극대화", weight: 40, color: "#38bdf8", ticker: "TLT", why: "금리가 내려갈 때 만기가 긴 채권일수록 가격 상승폭이 큽니다.", kr: [{ name: "ACE 미국30년국채액티브", code: "453850" }] },
+          { id: "ig", name: "우량 회사채", tag: "안정적 이자 + 금리 하락 수혜", weight: 25, color: "#34d399", ticker: "LQD", why: "국채보다 이자가 높으면서 신용 위험은 낮아 침체기 채권 포트폴리오의 축이 됩니다.", kr: [{ name: "KODEX iShares미국투자등급회사채액티브", code: "468630" }] },
+          { id: "defensive", name: "방어주 (헬스케어·유틸리티)", tag: "경기 둔감 수요", weight: 20, color: "#a855f7", ticker: "XLV", why: "경기와 무관하게 수요가 유지되어 주식 중에서는 하방이 상대적으로 단단합니다.", kr: [{ name: "KODEX 헬스케어", code: "266420" }] },
+          { id: "gold2", name: "금", tag: "안전자산 수요·실질금리 하락", weight: 15, color: "#eab308", ticker: "GC=F", why: "금리 인하와 위험회피 심리가 함께 작용하는 국면에서 분산 효과를 냅니다.", kr: [{ name: "ACE KRX금현물", code: "411060" }, { name: "KODEX 골드선물(H)", code: "132030" }] }
         ],
         avoid: "경기민감주, 원자재(수요 감소), 하이일드(부도 위험 상승), 신흥국 주식."
       }
@@ -518,8 +518,22 @@
               </div>
             </div>
             ${sel ? `<p class="text-[11px] text-slate-400 mt-2 leading-relaxed border-t border-slate-800 pt-2">${a.why}</p>` : ''}
+            ${sel ? renderKrMatch(a) : ''}
           </div>`;
       }).join('');
+    }
+
+    function renderKrMatch(asset) {
+      if (asset.kr && asset.kr.length) {
+        const chips = asset.kr.map(k =>
+          `<a href="https://finance.naver.com/item/main.naver?code=${k.code}" target="_blank" rel="noopener"
+             class="inline-flex items-center gap-1 text-[10px] px-2 py-1 rounded bg-sky-500/10 text-sky-300 border border-sky-500/30 hover:bg-sky-500/20">
+             ${k.name} <span class="text-slate-400 font-mono">${k.code}</span>
+           </a>`
+        ).join(' ');
+        return `<div class="mt-2 flex flex-wrap gap-1.5"><span class="text-[10px] text-slate-500 mr-0.5">국내 상장 대응 ETF:</span>${chips}</div>`;
+      }
+      return `<div class="mt-2 text-[10px] text-amber-400/80">⚠ 국내 상장 직접 대응 상품 확인 안 됨 — 해외주식 계좌로 ${asset.ticker} 매수 필요</div>`;
     }
 
     function selectAsset(id) {
