@@ -3,894 +3,593 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Macro Regime -> Top Assets -> KRX ETF Pipeline Terminal</title>
+  <title>매크로 국면 진단 (성장 × 물가) → 국면별 유리한 상품</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: { brand: { dark: '#080b11', card: '#0f172a', border: '#1e293b' } }
-        }
-      }
-    }
-  </script>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Pretendard", sans-serif; }
-    .badge-rank-1 { background: rgba(234, 179, 8, 0.18); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.45); }
-    .badge-rank-2 { background: rgba(148, 163, 184, 0.18); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.45); }
-    .badge-rank-3 { background: rgba(180, 83, 9, 0.18); color: #fdba74; border: 1px solid rgba(180, 83, 9, 0.45); }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Pretendard", "Malgun Gothic", sans-serif; }
     .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    .quad-active { box-shadow: 0 0 0 2px currentColor inset; background: rgba(255,255,255,0.06); }
   </style>
 </head>
 <body class="bg-[#080b11] text-slate-200 min-h-screen flex flex-col antialiased custom-scrollbar">
 
   <!-- Header -->
   <header class="border-b border-[#1e293b] bg-[#0c1322]/90 backdrop-blur sticky top-0 z-50 px-6 py-3.5 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <div class="p-2 bg-sky-500/10 text-sky-400 rounded-lg border border-sky-500/20">
-        <i data-lucide="git-fork" class="w-5 h-5"></i>
-      </div>
-      <div>
-        <h1 class="text-sm font-bold text-white flex items-center gap-2">
-          MACRO-TO-ETF PIPELINE <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800">Realtime Tracker</span>
-        </h1>
-        <p class="text-[11px] text-slate-400">1단계: 국면 진단 ➔ 2단계: 승자 자산 (실시간 3년 차트) ➔ 3단계: ETF 편입내역 및 수익률</p>
-      </div>
+    <div>
+      <h1 class="text-sm font-bold text-white flex items-center gap-2">
+        MACRO REGIME DASHBOARD
+        <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800">성장(GDPNow) × 물가(5Y BEI)</span>
+      </h1>
+      <p class="text-[11px] text-slate-400">1단계: 성장·물가 2축으로 국면 판정 ➔ 2단계: 그 국면에서 유리한 상품과 불리한 상품</p>
     </div>
-
     <div class="flex items-center gap-4">
       <div class="text-right hidden sm:block">
-        <div class="text-[10px] text-slate-500 font-medium">실시간 매크로 자동 진단 · <span id="last-updated-label">아직 갱신 안 됨</span></div>
-        <div id="header-regime-status" class="text-xs font-bold text-red-400">시장금리 상승 & 원자재 우위</div>
+        <div class="text-[10px] text-slate-500 font-medium">자동 국면 판정 · <span id="last-updated-label">아직 갱신 안 됨</span></div>
+        <div id="header-regime-status" class="text-xs font-bold text-slate-300">데이터 수신 대기 중</div>
       </div>
-      <button onclick="runMacroPipeline()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium flex items-center gap-1.5 border border-slate-700 transition">
-        <i data-lucide="refresh-cw" id="sync-icon" class="w-3.5 h-3.5 text-sky-400"></i>
-        <span>실시간 시세 재동기화</span>
+      <button onclick="runMacroPipeline()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium border border-slate-700 transition">
+        ⟳ 다시 불러오기
       </button>
     </div>
   </header>
 
-  <main class="flex-1 p-5 grid grid-cols-12 gap-5 max-w-[1920px] mx-auto w-full">
+  <main class="flex-1 p-5 grid grid-cols-12 gap-5 max-w-[1700px] mx-auto w-full">
 
-    <!-- STEP 1: Macro Diagnostic (3 Cols) -->
-    <div class="col-span-12 lg:col-span-3 space-y-4">
-      <div class="bg-[#0f172a] border border-[#1e293b] rounded-xl p-4 shadow-sm">
+    <!-- LEFT: Diagnosis -->
+    <div class="col-span-12 lg:col-span-4 space-y-4">
+
+      <div class="bg-[#0f172a] border border-[#1e293b] rounded-xl p-4">
         <div class="flex items-center justify-between border-b border-[#1e293b] pb-2 mb-3">
           <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
             <span class="w-5 h-5 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs font-extrabold border border-sky-500/30">1</span>
-            실시간 매크로 지표 관제
+            국면 진단 (성장 × 물가)
           </h2>
-          <span id="data-status-badge" class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">LIVE SYNC</span>
+          <span id="data-status-badge" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-700/40 text-slate-400 border border-slate-600/40 font-bold">대기</span>
         </div>
 
-        <div class="space-y-2 text-xs">
-          <div class="p-2.5 bg-[#080b11] rounded border border-slate-800 flex justify-between items-center">
+        <!-- Growth axis -->
+        <div class="p-3 bg-[#080b11] rounded border border-slate-800 mb-2">
+          <div class="flex justify-between items-start">
             <div>
-              <span class="text-slate-400 block text-[11px]">미국 10년 국채금리</span>
-              <span class="text-[10px] text-slate-500">Global Cost of Capital</span>
+              <div class="text-[11px] text-slate-300 font-semibold">성장 축 · GDPNow</div>
+              <div class="text-[10px] text-slate-500">애틀랜타 연준 실시간 GDP 추정 (FRED: GDPNOW)</div>
             </div>
             <div class="text-right">
-              <span id="metric-us10y" class="font-bold text-slate-100 text-sm">연산 중...</span>
-              <span id="sub-us10y" class="block text-[10px] text-red-400 font-medium">▲ 상승 압력 지속</span>
+              <div id="val-growth" class="text-lg font-extrabold text-slate-100">N/A</div>
+              <div id="tag-growth" class="text-[10px] font-bold text-slate-500">-</div>
             </div>
           </div>
+          <div id="sub-growth" class="text-[10px] text-slate-500 mt-1.5"></div>
+        </div>
 
-          <div class="p-2.5 bg-[#080b11] rounded border border-slate-800 flex justify-between items-center">
+        <!-- Inflation axis -->
+        <div class="p-3 bg-[#080b11] rounded border border-slate-800 mb-3">
+          <div class="flex justify-between items-start">
             <div>
-              <span class="text-slate-400 block text-[11px]">장단기 금리차 (10Y-3M)</span>
-              <span class="text-[10px] text-slate-500">Yield Curve Slope</span>
+              <div class="text-[11px] text-slate-300 font-semibold">물가 축 · 5년 BEI</div>
+              <div class="text-[10px] text-slate-500">시장이 보는 5년 기대인플레이션 (FRED: T5YIE)</div>
             </div>
             <div class="text-right">
-              <span id="metric-curve" class="font-bold text-slate-100 text-sm">연산 중...</span>
-              <span class="block text-[10px] text-amber-400 font-medium">스프레드 확대</span>
+              <div id="val-infl" class="text-lg font-extrabold text-slate-100">N/A</div>
+              <div id="tag-infl" class="text-[10px] font-bold text-slate-500">-</div>
             </div>
           </div>
+          <div id="sub-infl" class="text-[10px] text-slate-500 mt-1.5"></div>
+        </div>
 
-          <div class="p-2.5 bg-[#080b11] rounded border border-slate-800 flex justify-between items-center">
-            <div>
-              <span class="text-slate-400 block text-[11px]">WTI 국제 유가</span>
-              <span class="text-[10px] text-slate-500">인플레이션 선행지표</span>
-            </div>
-            <div class="text-right">
-              <span id="metric-oil" class="font-bold text-slate-100 text-sm">연산 중...</span>
-              <span id="sub-oil" class="block text-[10px] text-slate-400">배럴당 선물 시세</span>
-            </div>
+        <!-- Thresholds -->
+        <div class="grid grid-cols-2 gap-2 mb-3 text-[11px]">
+          <label class="p-2 bg-[#080b11] rounded border border-slate-800 flex items-center justify-between gap-2">
+            <span class="text-slate-400">성장 기준(%)</span>
+            <input id="th-growth" type="number" step="0.1" value="2.0" onchange="reclassify()" class="w-16 bg-[#0f172a] border border-slate-700 rounded px-1.5 py-0.5 text-right text-slate-100" />
+          </label>
+          <label class="p-2 bg-[#080b11] rounded border border-slate-800 flex items-center justify-between gap-2">
+            <span class="text-slate-400">물가 기준(%)</span>
+            <input id="th-infl" type="number" step="0.05" value="2.3" onchange="reclassify()" class="w-16 bg-[#0f172a] border border-slate-700 rounded px-1.5 py-0.5 text-right text-slate-100" />
+          </label>
+        </div>
+
+        <!-- 2x2 matrix -->
+        <div class="text-[10px] text-slate-500 mb-1">국면 매트릭스 (세로: 성장 / 가로: 물가)</div>
+        <div class="grid grid-cols-2 gap-1.5 text-[11px] mb-3">
+          <div id="cell-reflation" class="p-2 rounded border border-slate-800 bg-[#080b11] text-red-400">
+            <div class="font-bold">리플레이션</div><div class="text-[10px] text-slate-500">성장↑ 물가↑</div>
+          </div>
+          <div id="cell-goldilocks" class="p-2 rounded border border-slate-800 bg-[#080b11] text-emerald-400">
+            <div class="font-bold">골디락스</div><div class="text-[10px] text-slate-500">성장↑ 물가↓</div>
+          </div>
+          <div id="cell-stagflation" class="p-2 rounded border border-slate-800 bg-[#080b11] text-amber-400">
+            <div class="font-bold">스태그플레이션</div><div class="text-[10px] text-slate-500">성장↓ 물가↑</div>
+          </div>
+          <div id="cell-recession" class="p-2 rounded border border-slate-800 bg-[#080b11] text-sky-400">
+            <div class="font-bold">침체/디플레이션</div><div class="text-[10px] text-slate-500">성장↓ 물가↓</div>
           </div>
         </div>
 
-        <div class="mt-4 p-3 bg-[#080b11] rounded-lg border border-red-500/30">
-          <div class="text-[10px] text-slate-400 font-medium">확정된 매크로 사이클</div>
-          <div id="verdict-regime-title" class="text-xs font-bold text-red-400 mt-0.5">시장금리 상승 & 원자재 우위 국면</div>
-          <p id="verdict-regime-desc" class="text-[11px] text-slate-400 mt-1 leading-relaxed">
-            국채 공급 압박과 끈적한 유가로 금리가 상승 중입니다. <strong>장기 국채는 가격 하락 위험으로 배제</strong>되며 실물 자산과 초단기 파킹형 금리 자산이 요구됩니다.
-          </p>
+        <div class="p-3 bg-[#080b11] rounded-lg border border-slate-700">
+          <div class="text-[10px] text-slate-400 font-medium">현재 국면 <span id="regime-source" class="text-slate-500"></span></div>
+          <div id="verdict-regime-title" class="text-sm font-bold text-slate-300 mt-0.5">판정 대기 중</div>
+          <p id="verdict-regime-desc" class="text-[11px] text-slate-400 mt-1 leading-relaxed">데이터를 받아오면 자동으로 판정합니다. 데이터가 안 오면 아래 버튼으로 국면을 직접 골라볼 수 있습니다.</p>
+          <p id="verdict-warning" class="text-[11px] text-amber-400 mt-1.5 hidden"></p>
         </div>
       </div>
 
-      <div class="bg-[#0f172a] border border-[#1e293b] rounded-xl p-4 shadow-sm">
-        <div class="text-xs font-bold text-slate-300 mb-2 flex items-center gap-1.5">
-          <i data-lucide="sliders" class="w-3.5 h-3.5 text-sky-400"></i> 국면 스위칭 강제 테스트
+      <div class="bg-[#0f172a] border border-[#1e293b] rounded-xl p-4">
+        <div class="text-xs font-bold text-slate-300 mb-2">참고 시장지표 (판정에는 미사용)</div>
+        <div class="space-y-1.5 text-xs">
+          <div class="p-2 bg-[#080b11] rounded border border-slate-800 flex justify-between"><span class="text-slate-400">미국 10년 국채금리</span><span id="metric-us10y" class="font-bold text-slate-100">-</span></div>
+          <div class="p-2 bg-[#080b11] rounded border border-slate-800 flex justify-between"><span class="text-slate-400">장단기 금리차 (10Y-3M)</span><span id="metric-curve" class="font-bold text-slate-100">-</span></div>
+          <div class="p-2 bg-[#080b11] rounded border border-slate-800 flex justify-between"><span class="text-slate-400">WTI 유가</span><span id="metric-oil" class="font-bold text-slate-100">-</span></div>
         </div>
+      </div>
+
+      <div class="bg-[#0f172a] border border-[#1e293b] rounded-xl p-4">
+        <div class="text-xs font-bold text-slate-300 mb-2">국면 수동 선택 (테스트용)</div>
         <div class="grid grid-cols-2 gap-2 text-xs">
-          <button onclick="forceRegime('rates_rising')" id="btn-reg-rates_rising" class="p-2 rounded border border-red-500 bg-red-500/10 text-left transition">
-            <div class="font-bold text-red-400">1. 금리 상승 (현재)</div>
-            <div class="text-[10px] text-slate-400">초단기채 / 금 / 원유</div>
-          </button>
-          <button onclick="forceRegime('recession')" id="btn-reg-recession" class="p-2 rounded border border-slate-800 bg-[#080b11] text-left transition">
-            <div class="font-bold text-blue-400">2. 경기 침체/금리인하</div>
-            <div class="text-[10px] text-slate-400">미국 30년 장기국채</div>
-          </button>
-          <button onclick="forceRegime('goldilocks')" id="btn-reg-goldilocks" class="p-2 rounded border border-slate-800 bg-[#080b11] text-left transition">
-            <div class="font-bold text-emerald-400">3. 골디락스 회복</div>
-            <div class="text-[10px] text-slate-400">나스닥 / 코스피 / 구리</div>
-          </button>
-          <button onclick="forceRegime('stagflation')" id="btn-reg-stagflation" class="p-2 rounded border border-slate-800 bg-[#080b11] text-left transition">
-            <div class="font-bold text-amber-400">4. 스태그플레이션</div>
-            <div class="text-[10px] text-slate-400">순수 금 실물 / 필수소비</div>
-          </button>
+          <button onclick="forceRegime('reflation')" id="btn-reg-reflation" class="p-2 rounded border border-slate-800 bg-[#080b11] text-left"><div class="font-bold text-red-400">리플레이션</div></button>
+          <button onclick="forceRegime('goldilocks')" id="btn-reg-goldilocks" class="p-2 rounded border border-slate-800 bg-[#080b11] text-left"><div class="font-bold text-emerald-400">골디락스</div></button>
+          <button onclick="forceRegime('stagflation')" id="btn-reg-stagflation" class="p-2 rounded border border-slate-800 bg-[#080b11] text-left"><div class="font-bold text-amber-400">스태그플레이션</div></button>
+          <button onclick="forceRegime('recession')" id="btn-reg-recession" class="p-2 rounded border border-slate-800 bg-[#080b11] text-left"><div class="font-bold text-sky-400">침체/디플레이션</div></button>
         </div>
+        <button onclick="reclassify(true)" class="mt-2 w-full text-[11px] p-1.5 rounded border border-slate-700 text-slate-300 hover:bg-slate-800">자동 판정으로 되돌리기</button>
       </div>
     </div>
 
-    <!-- STEP 2: Recommended Assets & 3-Year Chart (4 Cols) -->
-    <div class="col-span-12 lg:col-span-4 space-y-4">
-      <div class="bg-[#0f172a] border border-[#1e293b] rounded-xl p-4 shadow-sm">
+    <!-- RIGHT: Assets -->
+    <div class="col-span-12 lg:col-span-8 space-y-4">
+
+      <div class="bg-[#0f172a] border border-[#1e293b] rounded-xl p-4">
         <div class="flex items-center justify-between border-b border-[#1e293b] pb-2 mb-3">
           <h2 class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
             <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs font-extrabold border border-amber-500/30">2</span>
-            국면 맞춤 승자 상품 (자산군)
+            이 국면에서 유리한 상품
           </h2>
-          <span class="text-[10px] text-slate-400">클릭 시 실시간 3년 궤적 표출</span>
+          <span class="text-[10px] text-slate-400">클릭하면 최근 3년 궤적</span>
         </div>
-        <div class="space-y-2.5" id="asset-container">
-          <!-- Injected via JS -->
+        <div id="asset-container" class="space-y-2.5">
+          <div class="text-xs text-slate-500 p-4 text-center">국면이 판정되면 유리한 상품이 표시됩니다.</div>
         </div>
-      </div>
-
-      <!-- REAL-TIME 3-Year WEEKLY Trend Chart (156 Weeks) -->
-      <div class="bg-[#0f172a] border border-[#1e293b] rounded-xl p-4 shadow-sm">
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-            <i data-lucide="line-chart" id="chart-loading-icon" class="w-3.5 h-3.5 text-sky-400"></i>
-            <span id="trend-chart-title" class="text-sky-300">선택 상품</span> 최근 3년 (주간)
-          </h3>
-          <span class="text-[10px] text-slate-500">실제 누적 수익률(Base 100)</span>
-        </div>
-        <div class="h-32 relative flex items-center justify-center">
-          <canvas id="trendChart"></canvas>
+        <div id="avoid-box" class="mt-3 p-3 rounded-lg border border-red-500/20 bg-red-500/5 hidden">
+          <div class="text-[11px] font-bold text-red-400 mb-1">불리한 자산 (비중 축소 검토)</div>
+          <div id="avoid-list" class="text-[11px] text-slate-400 leading-relaxed"></div>
         </div>
       </div>
 
-      <!-- Donut Chart -->
-      <div class="bg-[#0f172a] border border-[#1e293b] rounded-xl p-4 shadow-sm">
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-            <i data-lucide="pie-chart" class="w-3.5 h-3.5 text-purple-400"></i> 자산군 권장 비중
-          </h3>
-        </div>
-        <div class="h-28 relative flex items-center justify-center">
-          <canvas id="assetChart"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <!-- STEP 3: Matching KRX ETFs, Holdings & Multi-Period Returns (5 Cols) -->
-    <div class="col-span-12 lg:col-span-5 space-y-4">
-      <div class="bg-[#0f172a] border border-sky-500/40 rounded-xl p-5 shadow-xl sticky top-20">
-
-        <div class="flex items-start justify-between border-b border-[#1e293b] pb-3 mb-4">
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-extrabold border border-emerald-500/30">3</span>
-              <span class="text-xs font-bold text-slate-300">선택 상품 편입 ETF 실시간 추적</span>
-            </div>
-            <div class="flex items-center gap-2 mt-1.5">
-              <span id="target-asset-badge" class="text-xs font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                선택 상품: 대기 중...
-              </span>
-              <span class="text-[11px] text-slate-400">연관 KRX 상장 ETF</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="space-y-2 mb-4" id="matched-etf-cards"></div>
-
-        <!-- MULTI-PERIOD RETURNS PERFORMANCE MATRIX -->
-        <div class="mb-4 p-3 bg-[#080b11] rounded-xl border border-[#1e293b]">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="md:col-span-2 bg-[#0f172a] border border-[#1e293b] rounded-xl p-4">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-              <i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-400"></i>
-              <span id="return-tracker-title" class="text-sky-300">ETF</span> 기간별 수익률 트래커
-            </span>
+            <h3 class="text-xs font-bold text-slate-200"><span id="trend-chart-title" class="text-sky-300">선택 상품</span> 최근 3년 (주간)</h3>
+            <span class="text-[10px] text-slate-500">누적 수익률 (시작=100) · 대용 티커: <span id="trend-ticker">-</span></span>
           </div>
-          <div class="grid grid-cols-5 gap-1.5 text-center text-xs" id="returns-grid"></div>
+          <div class="h-44 relative flex items-center justify-center">
+            <canvas id="trendChart"></canvas>
+            <div id="trend-msg" class="absolute text-xs text-slate-500 hidden"></div>
+          </div>
         </div>
-
-        <!-- PDF Holdings Table -->
-        <div class="space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-              <i data-lucide="layers" class="w-3.5 h-3.5 text-sky-400"></i>
-              <span id="inspecting-etf-title">ETF</span> 편입내역(PDF) 실사
-            </span>
-          </div>
-          <div class="overflow-hidden rounded-lg border border-[#1e293b]">
-            <table class="w-full text-left text-xs">
-              <thead class="bg-[#080b11] text-slate-400 text-[11px] border-b border-[#1e293b]">
-                <tr>
-                  <th class="p-2.5">실제 편입 종목/자산명</th>
-                  <th class="p-2.5 text-right">보유 비중(%)</th>
-                  <th class="p-2.5 text-right">적합성 판정</th>
-                </tr>
-              </thead>
-              <tbody id="holdings-tbody" class="divide-y divide-slate-800 bg-[#0f172a] text-slate-300"></tbody>
-            </table>
-          </div>
-          <p class="text-[10px] text-slate-500">※ 편입내역/비중은 각 운용사 정기 공시(PDF) 기준 샘플 데이터입니다. 실시간 자동 반영은 지원하지 않습니다.</p>
+        <div class="bg-[#0f172a] border border-[#1e293b] rounded-xl p-4">
+          <h3 class="text-xs font-bold text-slate-200 mb-2">자산군 권장 비중</h3>
+          <div class="h-44 relative flex items-center justify-center"><canvas id="assetChart"></canvas></div>
         </div>
-
       </div>
-    </div>
 
+      <p class="text-[10px] text-slate-500 leading-relaxed">
+        ※ 성장·물가 기준선은 왼쪽에서 조정할 수 있습니다. GDPNow는 지표 발표 때마다(월 5~6회) 갱신되는 추정치라 값이 출렁일 수 있고, 5년 BEI는 매일 갱신됩니다.
+        상품별 차트는 미국 상장 대용 ETF/선물 가격이며 과거 성과가 미래를 보장하지 않습니다. 비중은 예시이며 투자 권유가 아닙니다.
+      </p>
+    </div>
   </main>
 
   <script>
     // ============================================================
-    // CORS 프록시 다중 폴백 헬퍼
-    // 무료 프록시 하나에만 의존하면 그 프록시가 다운되는 순간 전체가 죽습니다.
-    // 3개를 순서대로 시도하고, 각각 타임아웃을 걸어 한없이 기다리지 않게 합니다.
+    // 데이터 수신: 본인 Cloudflare Worker 우선, 실패 시 공용 프록시로 폴백
     // ============================================================
+    const WORKER_PROXY_URL = 'https://macro.leecheol9578.workers.dev';
+
+    // FRED 무료 API 키를 여기에 붙여넣으세요 (따옴표 안). 비워두면 CSV 방식으로 시도합니다.
+    // 발급: https://fred.stlouisfed.org/docs/api/api_key.html
+    const FRED_API_KEY = 'b7e541137ac2b8fc5ac4fadbe25d9365';
+
     const CORS_PROXIES = [
+      ...(WORKER_PROXY_URL ? [(url) => `${WORKER_PROXY_URL}/?url=${encodeURIComponent(url)}`] : []),
       (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
       (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-      (url) => `https://thingproxy.freeboard.io/fetch/${url}`,
     ];
 
-    async function fetchJsonWithFallback(targetUrl, timeoutMs = 8000) {
+    // parse가 예외를 던지면(형식이 이상한 응답) 다음 프록시로 넘어갑니다.
+    async function fetchWithFallback(targetUrl, parse, timeoutMs = 9000) {
       for (let i = 0; i < CORS_PROXIES.length; i++) {
-        const proxied = CORS_PROXIES[i](targetUrl);
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), timeoutMs);
         try {
-          const res = await fetch(proxied, { signal: controller.signal });
+          const res = await fetch(CORS_PROXIES[i](targetUrl), { signal: controller.signal });
           clearTimeout(timer);
-          if (!res.ok) { console.warn(`프록시 #${i + 1} 실패 (HTTP ${res.status})`); continue; }
-          const json = await res.json();
-          return json;
+          if (!res.ok) { console.warn(`프록시 #${i + 1} HTTP ${res.status}`); continue; }
+          return parse(await res.text());
         } catch (err) {
           clearTimeout(timer);
           console.warn(`프록시 #${i + 1} 실패:`, err.message);
-          continue;
         }
       }
-      return null; // 모든 프록시 실패
+      return null;
     }
+
+    function parseFredCsv(text) {
+      const lines = text.trim().split(/\r?\n/);
+      if (lines.length < 2 || !/date/i.test(lines[0])) throw new Error('FRED CSV 형식이 아님');
+      const rows = [];
+      for (let i = 1; i < lines.length; i++) {
+        const [d, v] = lines[i].split(',');
+        const n = parseFloat(v);
+        if (!isNaN(n)) rows.push({ date: d, value: n });
+      }
+      if (!rows.length) throw new Error('유효한 값 없음');
+      return rows;
+    }
+
+    function parseFredApi(text) {
+      const j = JSON.parse(text);
+      if (!Array.isArray(j.observations)) throw new Error('FRED API 응답 형식 오류: ' + (j.error_message || ''));
+      const rows = j.observations
+        .map(o => ({ date: o.date, value: parseFloat(o.value) }))
+        .filter(r => !isNaN(r.value));
+      if (!rows.length) throw new Error('유효한 값 없음');
+      return rows;
+    }
+
+    // API 키가 있으면 공식 API, 없으면 CSV 주소로 가져옵니다.
+    function fredSeries(id, startDate) {
+      if (FRED_API_KEY) {
+        const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${id}&api_key=${FRED_API_KEY}&file_type=json` +
+          (startDate ? `&observation_start=${startDate}` : '');
+        return fetchWithFallback(url, parseFredApi);
+      }
+      const url = `https://fred.stlouisfed.org/graph/fredgraph.csv?id=${id}` + (startDate ? `&cosd=${startDate}` : '');
+      return fetchWithFallback(url, parseFredCsv);
+    }
+
+    function parseYahoo(text) {
+      const j = JSON.parse(text);
+      if (!j?.chart?.result?.[0]) throw new Error('야후 응답에 result 없음');
+      return j;
+    }
+    const yahooUrl = (ticker, interval, range) =>
+      `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=${interval}&range=${range}`;
 
     function nowLabel() {
       return new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     }
-
-    // 폴백용 데모 시계열 생성기 (원본 코드에 이 함수가 없어서
-    // API 실패 시 차트가 에러로 죽던 버그를 수정했습니다)
-    function generateWeeklyTrend(base, weeks, volatility) {
-      const arr = [base];
-      for (let i = 1; i < weeks; i++) {
-        const prev = arr[i - 1];
-        const change = (Math.random() - 0.48) * volatility * 10;
-        arr.push(parseFloat((prev + change).toFixed(2)));
-      }
-      return arr;
+    function quarterLabel(dateStr) {
+      const d = new Date(dateStr);
+      return `${d.getFullYear()} Q${Math.floor(d.getMonth() / 3) + 1}`;
     }
 
-    // 1. DATA PIPELINE
-    const PIPELINE_DATA = {
-      rates_rising: {
-        title: "시장금리 상승 & 원자재 우위 국면",
-        desc: "미국 10년물 국채 금리가 반등세를 보이고 끈적한 유가로 장기채 가격이 하락 압력을 받습니다. 장기채 손실을 회피하고 초단기채, 금, 에너지, 가치주로 포트폴리오를 채워야 합니다.",
+    // ============================================================
+    // 국면 정의 (성장 × 물가)
+    // ============================================================
+    const REGIMES = {
+      reflation: {
+        title: "리플레이션 (성장↑ · 물가↑)", text: "text-red-400", border: "border-red-500", bg: "bg-red-500/10",
+        desc: "경기는 확장되는데 물가 압력도 커지는 과열 국면입니다. 실물자산과 경기민감 가치주가 강하고, 금리 상승 압력 때문에 장기채와 고밸류 성장주는 부담입니다.",
         assets: [
-          {
-            id: "cash_sofr", rank: 1, name: "달러 초단기채 / 현금", tag: "이자 수취 & 원금손실 0%", weight: 35, color: "#38bdf8", ticker: "SHV",
-            why: "금리가 오를수록 매일 붙는 이자가 커지며 듀레이션이 0이라 채권 평가손실이 전무합니다.",
-            etfs: [
-              { code: "449170", name: "TIGER 미국달러SOFR금리액티브", issuer: "미래에셋", fee: "0.05%", feature: "미국 무위험 지표금리 추종 달러 파킹", returns: { r1d: "+0.02%", r1w: "+0.11%", r1m: "+0.45%", r3m: "+1.38%", r6m: "+2.75%" }, holdings: [{ name: "US SOFR Index Swap", weight: "98.5%", fit: "적격 (손실위험 0%)", color: "text-emerald-400" }, { name: "USD 현금", weight: "1.5%", fit: "적격", color: "text-emerald-400" }] },
-              { code: "423160", name: "KODEX KOFR금리액티브(합성)", issuer: "삼성", fee: "0.03%", feature: "한국 국채 담보 무위험 익일물 원화 파킹", returns: { r1d: "+0.01%", r1w: "+0.07%", r1m: "+0.29%", r3m: "+0.88%", r6m: "+1.74%" }, holdings: [{ name: "KOFR Overnight 지수 스왑", weight: "95.0%", fit: "적격 (원화 무위험)", color: "text-emerald-400" }, { name: "원화 정기예금/콜론", weight: "5.0%", fit: "적격 (초단기 유동성)", color: "text-emerald-400" }] }
-            ]
-          },
-          {
-            id: "gold", rank: 2, name: "순수 금 (Gold) 실물", tag: "통화가치 훼손 & 인플레 헷지", weight: 25, color: "#eab308", ticker: "GC=F",
-            why: "재정적자 급증에 따른 화폐 신뢰도 하락과 지정학 위기를 방어하는 실물 안전자산입니다.",
-            etfs: [
-              { code: "411060", name: "ACE KRX금현물", issuer: "한국투자", fee: "0.15%", feature: "국내 유일 순금 99.99% 실물 ETF", returns: { r1d: "+0.65%", r1w: "+2.14%", r1m: "+5.82%", r3m: "+14.20%", r6m: "+26.85%" }, holdings: [{ name: "한국거래소 1kg 순금 실물", weight: "99.8%", fit: "적격 (인플레 헷지)", color: "text-emerald-400" }] }
-            ]
-          },
-          {
-            id: "energy", rank: 3, name: "원유 및 에너지 기업", tag: "유가 상승 마진 직결", weight: 20, color: "#f87171", ticker: "XLE",
-            why: "고금리와 인플레이션을 유발하는 주원인인 유가 상승분을 영업이익으로 흡수합니다.",
-            etfs: [
-              { code: "219480", name: "TIGER 미국에너지MSCI", issuer: "미래에셋", fee: "0.25%", feature: "엑손모빌, 셰브론 압축", returns: { r1d: "+1.15%", r1w: "+3.42%", r1m: "+6.10%", r3m: "+8.95%", r6m: "+15.30%" }, holdings: [{ name: "엑손 모빌", weight: "22.8%", fit: "적격", color: "text-emerald-400" }, { name: "셰브론", weight: "15.4%", fit: "적격", color: "text-emerald-400" }] }
-            ]
-          },
-          {
-            id: "value_div", rank: 4, name: "미국 배당 가치주", tag: "저부채 & 현금배당 방어력", weight: 20, color: "#a855f7", ticker: "SCHD",
-            why: "낮은 PER과 높은 배당으로 하방을 지킵니다.",
-            etfs: [
-              { code: "458730", name: "TIGER 미국배당다우존스", issuer: "미래에셋", fee: "0.01%", feature: "한국판 SCHD", returns: { r1d: "-0.15%", r1w: "+0.85%", r1m: "+2.40%", r3m: "+5.15%", r6m: "+9.80%" }, holdings: [{ name: "록히드 마틴", weight: "4.5%", fit: "적격", color: "text-emerald-400" }, { name: "애브비", weight: "4.3%", fit: "적격", color: "text-emerald-400" }] }
-            ]
-          }
-        ]
-      },
-      recession: {
-        title: "경기 급랭 & 긴급 금리인하 국면",
-        desc: "성장률이 급락하고 중앙은행이 기준금리를 공격적으로 인하합니다. 듀레이션이 긴 장기 국채가 채권 가격 폭등으로 최고의 자본차익을 안겨줍니다.",
-        assets: [
-          {
-            id: "us_lt_bond", rank: 1, name: "미국 초장기 국채 (20Y+)", tag: "자본차익 극대화", weight: 45, color: "#38bdf8", ticker: "TLT",
-            why: "금리가 수직 낙하할 때 만기가 긴 국채는 가격 상승 탄력이 가장 폭발적입니다.",
-            etfs: [
-              { code: "453850", name: "ACE 미국30년국채액티브", issuer: "한국투자", fee: "0.05%", feature: "미국 30년 국채 현물", returns: { r1d: "+1.85%", r1w: "+4.20%", r1m: "+9.50%", r3m: "+18.30%", r6m: "+24.50%" }, holdings: [{ name: "US Treasury Bond 30Y", weight: "98.2%", fit: "적격 (자본차익)", color: "text-emerald-400" }] }
-            ]
-          },
-          {
-            id: "kr_lt_bond", rank: 2, name: "국내 장기 국고채 (10Y/30Y)", tag: "한은 기준금리 인하", weight: 25, color: "#34d399", ticker: "152380.KS",
-            why: "국내 국고채 평가이익을 극대화합니다.",
-            etfs: [
-              { code: "152380", name: "KODEX 국고채10년", issuer: "삼성", fee: "0.07%", feature: "국내 10년 대표 장기채", returns: { r1d: "+0.95%", r1w: "+2.30%", r1m: "+5.10%", r3m: "+9.80%", r6m: "+14.20%" }, holdings: [{ name: "국고채 10년물 지표채권", weight: "99.1%", fit: "적격", color: "text-emerald-400" }] }
-            ]
-          },
-          {
-            id: "gold_safe", rank: 3, name: "금 (Gold)", tag: "실질금리 급락 수혜", weight: 20, color: "#eab308", ticker: "GC=F",
-            why: "금리 인하로 안전자산 수요가 몰립니다.",
-            etfs: [
-              { code: "411060", name: "ACE KRX금현물", issuer: "한국투자", fee: "0.15%", feature: "순금 실물 추종", returns: { r1d: "+0.65%", r1w: "+2.14%", r1m: "+5.82%", r3m: "+14.20%", r6m: "+26.85%" }, holdings: [{ name: "KRX 금현물 1kg", weight: "99.8%", fit: "적격", color: "text-emerald-400" }] }
-            ]
-          },
-          {
-            id: "cash_reserve", rank: 4, name: "현금 및 초단기채", tag: "위기 시 유동성 버퍼", weight: 10, color: "#64748b", ticker: "SHV",
-            why: "패닉 시 저점 매수를 위한 현금을 비축합니다.",
-            etfs: [
-              { code: "423160", name: "KODEX KOFR금리액티브", issuer: "삼성", fee: "0.03%", feature: "원화 무위험 일일 복리", returns: { r1d: "+0.01%", r1w: "+0.07%", r1m: "+0.29%", r3m: "+0.88%", r6m: "+1.74%" }, holdings: [{ name: "KOFR 지수 스왑", weight: "95.0%", fit: "적격", color: "text-emerald-400" }] }
-            ]
-          }
-        ]
+          { id: "commod", name: "원자재 (에너지·산업금속)", tag: "수요 증가 + 물가 상승의 직접 수혜", weight: 30, color: "#f87171", ticker: "DBC", why: "경기 확장으로 수요가 늘고 가격 자체가 물가를 끌어올리는 자산이라 이 국면의 대표 승자입니다." },
+          { id: "value", name: "가치주·경기민감주", tag: "에너지·소재·산업재 중심", weight: 30, color: "#fb923c", ticker: "IWD", why: "이익이 경기와 물가에 함께 연동되고, 금리 상승기에 성장주보다 밸류에이션 부담이 작습니다." },
+          { id: "em", name: "신흥국 주식", tag: "글로벌 수요·원자재 레버리지", weight: 20, color: "#38bdf8", ticker: "EEM", why: "글로벌 경기 확장과 원자재 가격 상승의 수혜를 받는 경향이 있습니다." },
+          { id: "fin", name: "금융(은행)주", tag: "금리 상승·대출 증가 수혜", weight: 20, color: "#a855f7", ticker: "XLF", why: "경기 확장기 대출 수요와 예대마진 개선의 혜택을 받습니다." }
+        ],
+        avoid: "장기국채(금리 상승 시 가격 하락), 고밸류 성장주(할인율 상승으로 멀티플 압박), 장기 고정금리 채권."
       },
       goldilocks: {
-        title: "골디락스 회복 국면",
-        desc: "물가와 금리가 안정되며 교역이 살아납니다. 한국 수출주와 미국 테크 성장주, 구리가 주도합니다.",
+        title: "골디락스 (성장↑ · 물가↓)", text: "text-emerald-400", border: "border-emerald-500", bg: "bg-emerald-500/10",
+        desc: "성장은 견조한데 물가는 안정적인, 위험자산에 가장 우호적인 국면입니다. 금리 부담이 낮아 성장주와 신용자산이 강합니다.",
         assets: [
-          {
-            id: "us_growth", rank: 1, name: "미국 테크 성장주", tag: "저금리 + 고성장", weight: 35, color: "#38bdf8", ticker: "QQQ",
-            why: "나스닥 테크 기업의 멀티플이 크게 확장됩니다.",
-            etfs: [
-              { code: "133690", name: "TIGER 미국나스닥100", issuer: "미래에셋", fee: "0.07%", feature: "미국 100대 성장주", returns: { r1d: "+1.45%", r1w: "+3.80%", r1m: "+8.20%", r3m: "+16.50%", r6m: "+31.20%" }, holdings: [{ name: "애플", weight: "11.2%", fit: "적격", color: "text-emerald-400" }, { name: "마이크로소프트", weight: "10.8%", fit: "적격", color: "text-emerald-400" }] }
-            ]
-          },
-          {
-            id: "kr_cyclical", rank: 2, name: "한국 수출 주식 (KOSPI)", tag: "교역 레버리지", weight: 30, color: "#f87171", ticker: "069500.KS",
-            why: "한국 반도체 등 시클리컬이 높은 탄력을 보입니다.",
-            etfs: [
-              { code: "069500", name: "KODEX 200", issuer: "삼성", fee: "0.15%", feature: "대한민국 대표 200대 기업", returns: { r1d: "+1.10%", r1w: "+3.20%", r1m: "+6.80%", r3m: "+12.40%", r6m: "+18.90%" }, holdings: [{ name: "삼성전자", weight: "27.5%", fit: "적격", color: "text-emerald-400" }, { name: "SK하이닉스", weight: "9.2%", fit: "적격", color: "text-emerald-400" }] }
-            ]
-          },
-          {
-            id: "copper", rank: 3, name: "구리 (닥터 코퍼)", tag: "제조업 활황 실물 수요", weight: 20, color: "#fb923c", ticker: "HG=F",
-            why: "인프라 투자 확대로 산업용 금속 수요가 폭증합니다.",
-            etfs: [
-              { code: "138910", name: "TIGER 구리실물", issuer: "미래에셋", fee: "0.45%", feature: "LME 구리 실물 추종", returns: { r1d: "+0.85%", r1w: "+2.70%", r1m: "+7.10%", r3m: "+15.80%", r6m: "+28.40%" }, holdings: [{ name: "LME 구리 실물", weight: "99.5%", fit: "적격", color: "text-emerald-400" }] }
-            ]
-          },
-          {
-            id: "quality_div", rank: 4, name: "글로벌 퀄리티 배당", tag: "안정적 현금흐름 배분", weight: 15, color: "#a855f7", ticker: "SCHD",
-            why: "안정적 현금 배당을 창출하여 포트폴리오를 지탱합니다.",
-            etfs: [
-              { code: "458730", name: "TIGER 미국배당다우존스", issuer: "미래에셋", fee: "0.01%", feature: "배당성장 100종목", returns: { r1d: "-0.15%", r1w: "+0.85%", r1m: "+2.40%", r3m: "+5.15%", r6m: "+9.80%" }, holdings: [{ name: "록히드 마틴", weight: "4.5%", fit: "적격", color: "text-emerald-400" }] }
-            ]
-          }
-        ]
+          { id: "growth", name: "미국 성장주·기술주", tag: "저물가·저금리 + 이익 성장", weight: 35, color: "#38bdf8", ticker: "QQQ", why: "할인율 부담이 낮은 가운데 이익이 늘어 멀티플 확장과 이익 성장이 동시에 나옵니다." },
+          { id: "equity", name: "주식 전반 (대형주)", tag: "시장 베타", weight: 25, color: "#34d399", ticker: "VTI", why: "성장이 받쳐주고 물가가 안정적이라 주식 전반의 리스크 프리미엄이 유리합니다." },
+          { id: "hy", name: "하이일드 회사채", tag: "부도 위험 낮음 + 높은 이자", weight: 20, color: "#eab308", ticker: "HYG", why: "성장 국면에서는 부도율이 낮아 스프레드 수익이 안정적으로 쌓입니다." },
+          { id: "disc", name: "경기소비재", tag: "소비 여력 확대", weight: 20, color: "#a855f7", ticker: "XLY", why: "물가 부담 없이 실질소득이 늘어 소비 지출이 개선됩니다." }
+        ],
+        avoid: "금(안전자산 수요 감소), 현금성 자산(기회비용), 방어주 비중 과다."
       },
       stagflation: {
-        title: "스태그플레이션 국면 (물가↑ 성장↓)",
-        desc: "물가는 오르는데 경기는 가라앉습니다. 실물 자산인 금과 원가전가력을 지닌 미국 배당주, 단기 달러채로 방어합니다.",
+        title: "스태그플레이션 (성장↓ · 물가↑)", text: "text-amber-400", border: "border-amber-500", bg: "bg-amber-500/10",
+        desc: "경기는 둔화되는데 물가는 오르는 최악의 조합으로, 주식과 채권이 함께 부진하기 쉽습니다. 실물자산·현금성 자산·가격전가력 있는 방어주로 버팁니다.",
         assets: [
-          {
-            id: "gold_pure", rank: 1, name: "순수 금 (Gold)", tag: "스태그 절대 승자", weight: 35, color: "#eab308", ticker: "GC=F",
-            why: "화폐가치 훼손을 방어하는 유일한 실물 피난처입니다.",
-            etfs: [
-              { code: "411060", name: "ACE KRX금현물", issuer: "한국투자", fee: "0.15%", feature: "순금 실물 추종", returns: { r1d: "+0.65%", r1w: "+2.14%", r1m: "+5.82%", r3m: "+14.20%", r6m: "+26.85%" }, holdings: [{ name: "KRX 금현물 1kg 실물", weight: "99.8%", fit: "적격", color: "text-emerald-400" }] }
-            ]
-          },
-          {
-            id: "sofr_safe", rank: 2, name: "달러 초단기채", tag: "고금리 이자 & 환율 방어", weight: 25, color: "#38bdf8", ticker: "SHV",
-            why: "고금리 이자를 고스란히 받으며 안전통화 달러를 확보합니다.",
-            etfs: [
-              { code: "449170", name: "TIGER 미국달러SOFR금리액티브", issuer: "미래에셋", fee: "0.05%", feature: "SOFR 지표금리 파킹", returns: { r1d: "+0.02%", r1w: "+0.11%", r1m: "+0.45%", r3m: "+1.38%", r6m: "+2.75%" }, holdings: [{ name: "US SOFR Swap", weight: "98.5%", fit: "적격", color: "text-emerald-400" }] }
-            ]
-          },
-          {
-            id: "value_pricing", rank: 3, name: "원가전가력 배당가치주", tag: "독점적 필수소비재", weight: 20, color: "#a855f7", ticker: "SCHD",
-            why: "물가 상승분을 제품 가격에 전가할 수 있는 독점적 퀄리티 기업만 이익을 보존합니다.",
-            etfs: [
-              { code: "458730", name: "TIGER 미국배당다우존스", issuer: "미래에셋", fee: "0.01%", feature: "미국 퀄리티 가치주", returns: { r1d: "-0.15%", r1w: "+0.85%", r1m: "+2.40%", r3m: "+5.15%", r6m: "+9.80%" }, holdings: [{ name: "애브비", weight: "4.3%", fit: "적격", color: "text-emerald-400" }] }
-            ]
-          },
-          {
-            id: "energy_oil", rank: 4, name: "원유 및 에너지", tag: "공급쇼크 수혜", weight: 20, color: "#f87171", ticker: "XLE",
-            why: "에너지 공급난으로 고마진을 누립니다.",
-            etfs: [
-              { code: "219480", name: "TIGER 미국에너지MSCI", issuer: "미래에셋", fee: "0.25%", feature: "미국 정유 메이저", returns: { r1d: "+1.15%", r1w: "+3.42%", r1m: "+6.10%", r3m: "+8.95%", r6m: "+15.30%" }, holdings: [{ name: "엑손 모빌", weight: "22.8%", fit: "적격", color: "text-emerald-400" }] }
-            ]
-          }
-        ]
+          { id: "gold", name: "금", tag: "화폐가치 훼손·실질금리 방어", weight: 35, color: "#eab308", ticker: "GC=F", why: "물가 상승과 경기 불안이 겹칠 때 주식·채권의 대안 헷지로 가장 자주 언급되는 자산입니다." },
+          { id: "cash", name: "달러 초단기채", tag: "듀레이션 0 + 높은 이자", weight: 25, color: "#38bdf8", ticker: "SHV", why: "금리 상승에도 평가손실이 거의 없고 이자 수익이 물가를 일부 방어합니다." },
+          { id: "staples", name: "필수소비재·유틸리티 방어주", tag: "가격 전가력 + 안정적 수요", weight: 25, color: "#34d399", ticker: "XLP", why: "경기 둔화에도 수요가 유지되고 원가 상승분을 가격에 전가할 여력이 상대적으로 큽니다." },
+          { id: "energy", name: "에너지 (제한적 비중)", tag: "공급 쇼크형 인플레 수혜", weight: 15, color: "#f87171", ticker: "XLE", why: "물가 상승의 원인이 공급 쪽일 때 이익을 방어하지만, 침체가 깊어지면 수요 감소 위험이 있어 비중을 제한합니다." }
+        ],
+        avoid: "장기국채(물가 상승 + 금리 부담), 고밸류 성장주, 하이일드(경기 둔화로 부도 위험 상승)."
+      },
+      recession: {
+        title: "침체/디플레이션 (성장↓ · 물가↓)", text: "text-sky-400", border: "border-sky-500", bg: "bg-sky-500/10",
+        desc: "성장이 꺾이고 물가도 내려가면서 금리 인하 기대가 커지는 국면입니다. 듀레이션이 긴 국채와 우량 채권, 방어주가 유리합니다.",
+        assets: [
+          { id: "ltbond", name: "미국 장기국채 (20Y+)", tag: "금리 인하 시 자본차익 극대화", weight: 40, color: "#38bdf8", ticker: "TLT", why: "금리가 내려갈 때 만기가 긴 채권일수록 가격 상승폭이 큽니다." },
+          { id: "ig", name: "우량 회사채", tag: "안정적 이자 + 금리 하락 수혜", weight: 25, color: "#34d399", ticker: "LQD", why: "국채보다 이자가 높으면서 신용 위험은 낮아 침체기 채권 포트폴리오의 축이 됩니다." },
+          { id: "defensive", name: "방어주 (헬스케어·유틸리티)", tag: "경기 둔감 수요", weight: 20, color: "#a855f7", ticker: "XLV", why: "경기와 무관하게 수요가 유지되어 주식 중에서는 하방이 상대적으로 단단합니다." },
+          { id: "gold2", name: "금", tag: "안전자산 수요·실질금리 하락", weight: 15, color: "#eab308", ticker: "GC=F", why: "금리 인하와 위험회피 심리가 함께 작용하는 국면에서 분산 효과를 냅니다." }
+        ],
+        avoid: "경기민감주, 원자재(수요 감소), 하이일드(부도 위험 상승), 신흥국 주식."
       }
     };
 
-    let activeRegimeKey = "rates_rising";
-    let selectedAssetId = "cash_sofr";
-    let selectedEtfCode = "449170";
+    // ============================================================
+    // 상태
+    // ============================================================
+    let macroState = { growth: null, infl: null, us10y: null, us3m: null, wti: null, wtiChg: null };
+    let activeRegimeKey = null;
+    let selectedAssetId = null;
     let assetChartObj = null;
     let trendChartObj = null;
-    let lastGoodMacro = null; // { us10y, us3m, wtiOil, wtiChange, ts }
-
-    function formatReturnSpan(retStr) {
-      if (!retStr) return `<span class="text-slate-500">-</span>`;
-      const isPositive = retStr.trim().startsWith('+');
-      const isZero = retStr.trim().startsWith('0') || retStr.trim() === '+0.00%';
-      const colorClass = isZero ? "text-slate-400" : isPositive ? "text-red-400" : "text-blue-400";
-      return `<span class="font-bold ${colorClass}">${retStr}</span>`;
-    }
+    let trendToken = 0;
 
     // ============================================================
-    // STEP 1: 매크로 지표 파이프라인 (10Y, 3M, WTI)
+    // 1단계: 매크로 지표 수신 및 국면 판정
     // ============================================================
     async function runMacroPipeline() {
-      const icon = document.getElementById('sync-icon');
       const badge = document.getElementById('data-status-badge');
-      if (icon) icon.classList.add('animate-spin');
-      if (badge) {
-        badge.textContent = '수신 중...';
-        badge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold';
-      }
+      setBadge('수신 중...', 'amber');
 
-      const [tnxJson, irxJson, oilJson] = await Promise.all([
-        fetchJsonWithFallback('https://query1.finance.yahoo.com/v8/finance/chart/^TNX?interval=1d&range=5d'),
-        fetchJsonWithFallback('https://query1.finance.yahoo.com/v8/finance/chart/^IRX?interval=1d&range=5d'),
-        fetchJsonWithFallback('https://query1.finance.yahoo.com/v8/finance/chart/CL=F?interval=1d&range=5d'),
+      const cosd = new Date(Date.now() - 400 * 86400000).toISOString().slice(0, 10);
+      const [gdp, bei, tnx, irx, oil] = await Promise.all([
+        fredSeries('GDPNOW'),
+        fredSeries('T5YIE', cosd),
+        fetchWithFallback(yahooUrl('^TNX', '1d', '5d'), parseYahoo),
+        fetchWithFallback(yahooUrl('^IRX', '1d', '5d'), parseYahoo),
+        fetchWithFallback(yahooUrl('CL=F', '1d', '5d'), parseYahoo),
       ]);
 
-      let us10y = null, us3m = null, wtiOil = null, wtiChange = null;
+      // 성장 축: GDPNow (가장 최근 행 = 현재 분기 추정치)
+      if (gdp) {
+        const last = gdp[gdp.length - 1];
+        const prev = gdp.length > 1 ? gdp[gdp.length - 2] : null;
+        macroState.growth = { value: last.value, date: last.date, prev: prev, stale: false };
+      } else if (macroState.growth) macroState.growth.stale = true;
 
-      try { us10y = parseFloat(tnxJson.chart.result[0].meta.regularMarketPrice.toFixed(2)); } catch (e) {}
-      try { us3m = parseFloat(irxJson.chart.result[0].meta.regularMarketPrice.toFixed(2)); } catch (e) {}
+      // 물가 축: 5년 BEI (최근값, 약 1개월(21영업일) 전 대비 변화)
+      if (bei) {
+        const last = bei[bei.length - 1];
+        const ago = bei.length > 22 ? bei[bei.length - 22] : null;
+        macroState.infl = { value: last.value, date: last.date, chg1m: ago ? (last.value - ago.value) : null, stale: false };
+      } else if (macroState.infl) macroState.infl.stale = true;
+
+      // 참고 지표
+      try { macroState.us10y = tnx.chart.result[0].meta.regularMarketPrice; } catch (e) {}
+      try { macroState.us3m = irx.chart.result[0].meta.regularMarketPrice; } catch (e) {}
       try {
-        const meta = oilJson.chart.result[0].meta;
-        wtiOil = parseFloat(meta.regularMarketPrice.toFixed(2));
-        const prevClose = meta.chartPreviousClose || meta.previousClose;
-        if (prevClose) {
-          const chg = ((wtiOil - prevClose) / prevClose) * 100;
-          wtiChange = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
-        }
+        const m = oil.chart.result[0].meta;
+        macroState.wti = m.regularMarketPrice;
+        const prevClose = m.chartPreviousClose || m.previousClose;
+        macroState.wtiChg = prevClose ? ((m.regularMarketPrice - prevClose) / prevClose) * 100 : null;
       } catch (e) {}
 
-      const gotAny = us10y !== null || us3m !== null || wtiOil !== null;
+      renderAxes();
+      renderReference();
+      document.getElementById('last-updated-label').textContent = `마지막 시도 ${nowLabel()}`;
 
-      if (gotAny) {
-        lastGoodMacro = {
-          us10y: us10y ?? lastGoodMacro?.us10y ?? null,
-          us3m: us3m ?? lastGoodMacro?.us3m ?? null,
-          wtiOil: wtiOil ?? lastGoodMacro?.wtiOil ?? null,
-          wtiChange: wtiChange ?? lastGoodMacro?.wtiChange ?? null,
-          ts: Date.now(),
-        };
+      const axesOk = !!(macroState.growth && macroState.infl);
+      const anyStale = (macroState.growth?.stale) || (macroState.infl?.stale);
+      if (!axesOk) setBadge('성장/물가 데이터 조회 실패', 'red');
+      else if (anyStale) setBadge('일부 지연 (직전 값 사용)', 'amber');
+      else setBadge(`동기화 완료 ${nowLabel()}`, 'emerald');
+
+      if (axesOk) reclassify(true);
+    }
+
+    function setBadge(text, color) {
+      const badge = document.getElementById('data-status-badge');
+      const map = {
+        amber: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        red: 'bg-red-500/10 text-red-400 border-red-500/20',
+        emerald: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+      };
+      badge.textContent = text;
+      badge.className = `text-[10px] px-1.5 py-0.5 rounded border font-bold ${map[color]}`;
+    }
+
+    function thresholds() {
+      return {
+        growth: parseFloat(document.getElementById('th-growth').value) || 2.0,
+        infl: parseFloat(document.getElementById('th-infl').value) || 2.3,
+      };
+    }
+
+    function renderAxes() {
+      const th = thresholds();
+      const g = macroState.growth, i = macroState.infl;
+
+      if (g) {
+        const up = g.value >= th.growth;
+        document.getElementById('val-growth').textContent = `${g.value.toFixed(2)}%`;
+        const tag = document.getElementById('tag-growth');
+        tag.textContent = up ? `성장 상승 (기준 ${th.growth}% 이상)` : `성장 둔화 (기준 ${th.growth}% 미만)`;
+        tag.className = `text-[10px] font-bold ${up ? 'text-emerald-400' : 'text-amber-400'}`;
+        document.getElementById('sub-growth').textContent =
+          `${quarterLabel(g.date)} 추정 · 갱신일 ${g.date}` +
+          (g.prev ? ` · 직전 분기(${quarterLabel(g.prev.date)}) ${g.prev.value.toFixed(2)}%` : '') +
+          (g.stale ? ' · ⚠ 지연 데이터' : '');
+      } else {
+        document.getElementById('val-growth').textContent = 'N/A';
+        document.getElementById('tag-growth').textContent = '조회 실패';
+        document.getElementById('sub-growth').textContent = '';
       }
 
-      renderMacroMetrics(lastGoodMacro, !gotAny);
-
-      const lastUpdatedEl = document.getElementById('last-updated-label');
-      if (lastUpdatedEl && lastGoodMacro) {
-        lastUpdatedEl.textContent = `마지막 갱신 ${nowLabel()}`;
-      }
-
-      if (lastGoodMacro?.us10y != null) {
-        if (lastGoodMacro.us10y >= 4.30) setRegimeState('rates_rising');
-        else if (lastGoodMacro.us10y <= 3.70) setRegimeState('recession');
-        else setRegimeState('goldilocks');
-      }
-
-      if (icon) icon.classList.remove('animate-spin');
-      if (badge) {
-        if (gotAny) {
-          badge.textContent = `동기화 완료 ${nowLabel()}`;
-          badge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold';
-        } else {
-          badge.textContent = lastGoodMacro ? '갱신 실패 (직전 값 유지)' : '조회 실패';
-          badge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/20 font-bold';
-        }
+      if (i) {
+        const up = i.value >= th.infl;
+        document.getElementById('val-infl').textContent = `${i.value.toFixed(2)}%`;
+        const tag = document.getElementById('tag-infl');
+        tag.textContent = up ? `물가 상승 (기준 ${th.infl}% 이상)` : `물가 안정 (기준 ${th.infl}% 미만)`;
+        tag.className = `text-[10px] font-bold ${up ? 'text-red-400' : 'text-emerald-400'}`;
+        document.getElementById('sub-infl').textContent =
+          `기준일 ${i.date}` +
+          (i.chg1m != null ? ` · 1개월 전 대비 ${(i.chg1m * 100 >= 0 ? '+' : '')}${Math.round(i.chg1m * 100)}bp` : '') +
+          (i.stale ? ' · ⚠ 지연 데이터' : '');
+      } else {
+        document.getElementById('val-infl').textContent = 'N/A';
+        document.getElementById('tag-infl').textContent = '조회 실패';
+        document.getElementById('sub-infl').textContent = '';
       }
     }
 
-    function renderMacroMetrics(cache, isStale) {
-      const us10yEl = document.getElementById('metric-us10y');
-      const curveEl = document.getElementById('metric-curve');
-      const oilPriceEl = document.getElementById('metric-oil');
-      const oilSubEl = document.getElementById('sub-oil');
-
-      if (!cache) {
-        us10yEl.textContent = 'N/A';
-        curveEl.textContent = 'N/A';
-        oilPriceEl.textContent = 'N/A';
-        if (oilSubEl) oilSubEl.textContent = '조회 실패 - 60초 후 자동 재시도';
-        return;
-      }
-
-      us10yEl.textContent = cache.us10y != null ? `${cache.us10y.toFixed(2)}%` : 'N/A';
-
-      if (cache.us10y != null && cache.us3m != null) {
-        const spread = Math.round((cache.us10y - cache.us3m) * 100);
-        curveEl.textContent = `${spread > 0 ? '+' : ''}${spread} bp`;
-      } else {
-        curveEl.textContent = 'N/A';
-      }
-
-      if (cache.wtiOil != null) {
-        oilPriceEl.textContent = `$${cache.wtiOil.toFixed(2)}`;
-        if (oilSubEl) {
-          const staleTag = isStale ? ' (지연 데이터)' : '';
-          if (cache.wtiChange) {
-            oilSubEl.textContent = `${cache.wtiChange} (전일비)${staleTag}`;
-            oilSubEl.className = cache.wtiChange.startsWith('+') ? "block text-[10px] text-red-400 font-medium" : "block text-[10px] text-blue-400 font-medium";
-          } else {
-            oilSubEl.textContent = `배럴당 선물 시세${staleTag}`;
-          }
-        }
-      } else {
-        oilPriceEl.textContent = 'N/A';
-      }
+    function renderReference() {
+      const s = macroState;
+      document.getElementById('metric-us10y').textContent = s.us10y != null ? `${s.us10y.toFixed(2)}%` : 'N/A';
+      if (s.us10y != null && s.us3m != null) {
+        const bp = Math.round((s.us10y - s.us3m) * 100);
+        document.getElementById('metric-curve').textContent = `${bp > 0 ? '+' : ''}${bp} bp`;
+      } else document.getElementById('metric-curve').textContent = 'N/A';
+      document.getElementById('metric-oil').textContent = s.wti != null
+        ? `$${s.wti.toFixed(2)}${s.wtiChg != null ? ` (${s.wtiChg >= 0 ? '+' : ''}${s.wtiChg.toFixed(2)}%)` : ''}` : 'N/A';
     }
 
-    function forceRegime(key) { setRegimeState(key); }
+    // 자동 판정 (기준선 변경 시에도 다시 호출)
+    function reclassify(applyAuto) {
+      renderAxes();
+      const g = macroState.growth, i = macroState.infl;
+      if (!g || !i) return;
+      const th = thresholds();
+      const gUp = g.value >= th.growth;
+      const iUp = i.value >= th.infl;
+      const key = gUp && iUp ? 'reflation' : gUp && !iUp ? 'goldilocks' : !gUp && iUp ? 'stagflation' : 'recession';
 
-    function setRegimeState(regimeKey) {
-      activeRegimeKey = regimeKey;
-      const data = PIPELINE_DATA[regimeKey];
+      // 경계 근접 경고
+      const warns = [];
+      if (Math.abs(g.value - th.growth) < 0.3) warns.push(`GDPNow(${g.value.toFixed(2)}%)가 기준선 ${th.growth}%에 근접해 있어 성장 판정이 바뀔 수 있습니다.`);
+      if (Math.abs(i.value - th.infl) < 0.1) warns.push(`5년 BEI(${i.value.toFixed(2)}%)가 기준선 ${th.infl}%에 근접해 있어 물가 판정이 바뀔 수 있습니다.`);
 
-      document.getElementById('header-regime-status').textContent = data.title;
-      document.getElementById('verdict-regime-title').textContent = data.title;
-      document.getElementById('verdict-regime-desc').innerHTML = data.desc;
+      setRegimeState(key, '자동 판정', warns);
+    }
 
-      ['rates_rising', 'recession', 'goldilocks', 'stagflation'].forEach(k => {
+    function forceRegime(key) { setRegimeState(key, '수동 선택', []); }
+
+    function setRegimeState(key, source, warns) {
+      activeRegimeKey = key;
+      const r = REGIMES[key];
+
+      document.getElementById('header-regime-status').textContent = `${r.title}${source === '수동 선택' ? ' (수동)' : ''}`;
+      document.getElementById('header-regime-status').className = `text-xs font-bold ${r.text}`;
+      document.getElementById('verdict-regime-title').textContent = r.title;
+      document.getElementById('verdict-regime-title').className = `text-sm font-bold mt-0.5 ${r.text}`;
+      document.getElementById('verdict-regime-desc').textContent = r.desc;
+      document.getElementById('regime-source').textContent = `· ${source}`;
+
+      const w = document.getElementById('verdict-warning');
+      if (warns && warns.length) { w.textContent = '⚠ ' + warns.join(' '); w.classList.remove('hidden'); }
+      else w.classList.add('hidden');
+
+      Object.keys(REGIMES).forEach(k => {
+        const cell = document.getElementById(`cell-${k}`);
+        cell.classList.toggle('quad-active', k === key);
         const btn = document.getElementById(`btn-reg-${k}`);
-        if (k === regimeKey) btn.className = "p-2 rounded border border-red-500 bg-red-500/10 text-left transition";
-        else btn.className = "p-2 rounded border border-slate-800 bg-[#080b11] text-left transition";
+        btn.className = `p-2 rounded border text-left ${k === key ? REGIMES[k].border + ' ' + REGIMES[k].bg : 'border-slate-800 bg-[#080b11]'}`;
       });
 
-      selectedAssetId = data.assets[0].id;
+      selectedAssetId = r.assets[0].id;
       renderAssetsList();
       selectAsset(selectedAssetId);
-      renderAssetDonut(data.assets);
+      renderAssetDonut(r.assets);
 
-      lucide.createIcons();
+      document.getElementById('avoid-list').textContent = r.avoid;
+      document.getElementById('avoid-box').classList.remove('hidden');
     }
 
+    // ============================================================
+    // 2단계: 유리한 상품 목록 / 차트
+    // ============================================================
     function renderAssetsList() {
-      const regime = PIPELINE_DATA[activeRegimeKey];
-      const container = document.getElementById('asset-container');
-
-      container.innerHTML = regime.assets.map(asset => {
-        const isSelected = asset.id === selectedAssetId;
+      const r = REGIMES[activeRegimeKey];
+      document.getElementById('asset-container').innerHTML = r.assets.map((a, idx) => {
+        const sel = a.id === selectedAssetId;
         return `
-          <div onclick="selectAsset('${asset.id}')" class="p-3 bg-[#080b11] rounded-xl border ${isSelected ? 'border-amber-400 ring-1 ring-amber-400/50' : 'border-[#1e293b] hover:border-slate-700'} cursor-pointer transition flex items-center justify-between">
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded badge-rank-${asset.rank}">Rank #${asset.rank} 승자</span>
-                <span class="text-xs font-bold text-slate-100">${asset.name}</span>
+          <div onclick="selectAsset('${a.id}')" class="p-3 bg-[#080b11] rounded-xl border ${sel ? 'border-amber-400 ring-1 ring-amber-400/50' : 'border-[#1e293b] hover:border-slate-700'} cursor-pointer transition">
+            <div class="flex items-center justify-between">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-700/40 text-slate-300 border border-slate-600/40">#${idx + 1}</span>
+                  <span class="text-xs font-bold text-slate-100">${a.name}</span>
+                </div>
+                <div class="text-[11px] text-slate-400">${a.tag}</div>
               </div>
-              <div class="text-[11px] text-slate-400">${asset.tag}</div>
+              <div class="text-right shrink-0 ml-3">
+                <div class="text-[10px] text-slate-500">권장 비중</div>
+                <div class="text-base font-extrabold text-amber-400">${a.weight}%</div>
+              </div>
             </div>
-            <div class="text-right shrink-0 ml-3">
-              <div class="text-[10px] text-slate-500">배분 비중</div>
-              <div class="text-base font-extrabold text-amber-400">${asset.weight}%</div>
-            </div>
-          </div>
-        `;
+            ${sel ? `<p class="text-[11px] text-slate-400 mt-2 leading-relaxed border-t border-slate-800 pt-2">${a.why}</p>` : ''}
+          </div>`;
       }).join('');
     }
 
-    function selectAsset(assetId) {
-      selectedAssetId = assetId;
+    function selectAsset(id) {
+      selectedAssetId = id;
       renderAssetsList();
-
-      const regime = PIPELINE_DATA[activeRegimeKey];
-      const asset = regime.assets.find(a => a.id === assetId);
-      if (!asset) return;
-
-      document.getElementById('target-asset-badge').textContent = `선택 상품: ${asset.name}`;
-
-      fetchTrendChart(asset);
-
-      selectedEtfCode = asset.etfs[0].code;
-      renderMatchedEtfCards(asset.etfs);
-      inspectEtfDetails(asset.etfs[0]);
+      const asset = REGIMES[activeRegimeKey].assets.find(a => a.id === id);
+      if (asset) fetchTrendChart(asset);
     }
 
-    // ============================================================
-    // STEP 2: 3년 주간 트렌드 차트 (야후 파이낸스 + 프록시 폴백)
-    // ============================================================
     async function fetchTrendChart(asset) {
+      const token = ++trendToken;
       const titleEl = document.getElementById('trend-chart-title');
-      const iconEl = document.getElementById('chart-loading-icon');
-      titleEl.textContent = asset.name + " (데이터 수신 중...)";
-      if (iconEl) iconEl.classList.add('animate-spin');
+      const msgEl = document.getElementById('trend-msg');
+      titleEl.textContent = asset.name;
+      document.getElementById('trend-ticker').textContent = asset.ticker;
+      msgEl.textContent = '데이터 수신 중...';
+      msgEl.classList.remove('hidden');
 
-      let labels = [];
-      let dataPoints = [];
-      let isDemo = false;
-
-      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${asset.ticker}?interval=1wk&range=3y`;
-      const json = await fetchJsonWithFallback(url);
+      const json = await fetchWithFallback(yahooUrl(asset.ticker, '1wk', '3y'), parseYahoo);
+      if (token !== trendToken) return; // 그 사이 다른 상품을 눌렀으면 무시
 
       try {
         const result = json.chart.result[0];
-        const timestamps = result.timestamp;
-        const closes = result.indicators.quote[0].close;
-        let validData = [];
-        for (let i = 0; i < closes.length; i++) {
-          if (closes[i] !== null && timestamps[i] != null) validData.push({ t: timestamps[i], c: closes[i] });
-        }
-        if (validData.length < 2) throw new Error('데이터 부족');
-
-        const basePrice = validData[0].c;
-        labels = validData.map(d => {
-          const date = new Date(d.t * 1000);
-          return `${date.getFullYear().toString().slice(2)}년 ${date.getMonth() + 1}월`;
-        });
-        dataPoints = validData.map(d => parseFloat(((d.c / basePrice) * 100).toFixed(2)));
+        const ts = result.timestamp, closes = result.indicators.quote[0].close;
+        const pts = [];
+        for (let i = 0; i < closes.length; i++) if (closes[i] != null && ts[i] != null) pts.push({ t: ts[i], c: closes[i] });
+        if (pts.length < 2) throw new Error('데이터 부족');
+        const base = pts[0].c;
+        const labels = pts.map(p => { const d = new Date(p.t * 1000); return `${String(d.getFullYear()).slice(2)}.${d.getMonth() + 1}`; });
+        const data = pts.map(p => parseFloat(((p.c / base) * 100).toFixed(2)));
+        msgEl.classList.add('hidden');
+        renderLineChart(labels, data, asset.color);
       } catch (err) {
-        console.warn("차트 데이터 조회 실패, 데모 데이터로 대체:", err);
-        isDemo = true;
-        const today = new Date();
-        for (let i = 155; i >= 0; i--) {
-          const d = new Date(today);
-          d.setDate(today.getDate() - (i * 7));
-          labels.push(`${d.getFullYear().toString().slice(2)}년 ${d.getMonth() + 1}월`);
-        }
-        dataPoints = generateWeeklyTrend(100, 156, 0.05);
+        console.warn('차트 데이터 실패:', err);
+        if (trendChartObj) { trendChartObj.destroy(); trendChartObj = null; }
+        msgEl.textContent = '가격 데이터 조회 실패 (잠시 후 다시 시도)';
+        msgEl.classList.remove('hidden');
       }
-
-      titleEl.textContent = asset.name + (isDemo ? ' (조회 실패 - 데모 데이터)' : '');
-      if (iconEl) iconEl.classList.remove('animate-spin');
-
-      renderLineChart(labels, dataPoints, asset.color);
     }
 
-    function renderLineChart(labels, dataPoints, color) {
+    function renderLineChart(labels, data, color) {
       const ctx = document.getElementById('trendChart').getContext('2d');
       if (trendChartObj) trendChartObj.destroy();
-
       trendChartObj = new Chart(ctx, {
         type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: '누적 수익률 (Base 100)',
-            data: dataPoints,
-            borderColor: color,
-            backgroundColor: color + '22',
-            borderWidth: 1.5,
-            pointRadius: 0,
-            pointHoverRadius: 4,
-            pointBackgroundColor: '#0f172a',
-            pointBorderColor: color,
-            pointBorderWidth: 2,
-            fill: true,
-            tension: 0.1
-          }]
-        },
+        data: { labels, datasets: [{ data, borderColor: color, backgroundColor: color + '22', borderWidth: 1.5, pointRadius: 0, pointHoverRadius: 4, fill: true, tension: 0.1 }] },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              intersect: false,
-              mode: 'index',
-              callbacks: {
-                title: (ctx) => `${ctx[0].label}`,
-                label: (ctx) => ` 누적 지수: ${ctx.raw}pt`
-              }
-            }
-          },
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { intersect: false, mode: 'index', callbacks: { label: (c) => ` ${c.raw}pt` } } },
           scales: {
-            x: {
-              grid: { display: false },
-              ticks: {
-                maxTicksLimit: 6,
-                color: '#64748b',
-                font: { size: 10 }
-              }
-            },
-            y: {
-              grid: { color: '#1e293b' },
-              ticks: { color: '#64748b', font: { size: 10 } }
-            }
-          },
-          interaction: { mode: 'nearest', axis: 'x', intersect: false }
+            x: { grid: { display: false }, ticks: { maxTicksLimit: 6, color: '#64748b', font: { size: 10 } } },
+            y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 10 } } }
+          }
         }
       });
-    }
-
-    function renderMatchedEtfCards(etfs) {
-      const container = document.getElementById('matched-etf-cards');
-      container.innerHTML = etfs.map(etf => {
-        const isSelected = etf.code === selectedEtfCode;
-        return `
-          <div onclick="selectEtfCode('${etf.code}')" class="p-3 bg-[#080b11] rounded-lg border ${isSelected ? 'border-sky-400 ring-1 ring-sky-400/50' : 'border-slate-800 hover:border-slate-700'} cursor-pointer transition flex items-center justify-between">
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-mono font-bold text-sky-400">${etf.code}</span>
-                <span class="text-xs font-bold text-white">${etf.name}</span>
-              </div>
-              <div class="text-[11px] text-slate-400 mt-0.5">${etf.feature}</div>
-            </div>
-            <div class="text-right">
-              <div class="text-[10px] text-slate-400">1M 수익률: ${formatReturnSpan(etf.returns.r1m)}</div>
-              <div class="text-[10px] text-slate-500 mt-0.5">보수: <span class="text-slate-300 font-medium">${etf.fee}</span></div>
-            </div>
-          </div>
-        `;
-      }).join('');
-      lucide.createIcons();
-    }
-
-    function selectEtfCode(code) {
-      selectedEtfCode = code;
-      const regime = PIPELINE_DATA[activeRegimeKey];
-      const asset = regime.assets.find(a => a.id === selectedAssetId);
-      const etf = asset.etfs.find(e => e.code === code);
-      renderMatchedEtfCards(asset.etfs);
-      inspectEtfDetails(etf);
-    }
-
-    // ============================================================
-    // STEP 3: ETF 실제 기간별 수익률 계산 (야후 파이낸스 {code}.KS 일별 종가 기반)
-    // 원본 코드는 PIPELINE_DATA에 박아둔 고정 숫자를 그대로 보여줬습니다.
-    // 여기서는 실제 종가 데이터를 가져와 1D/1W/1M/3M/6M 수익률을 계산합니다.
-    // ============================================================
-    async function fetchRealEtfReturns(etfCode) {
-      const yahooTicker = `${etfCode}.KS`;
-      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${yahooTicker}?interval=1d&range=1y`;
-      const json = await fetchJsonWithFallback(url);
-      if (!json) return null;
-
-      try {
-        const result = json.chart.result[0];
-        const timestamps = result.timestamp;
-        const closes = result.indicators.quote[0].close;
-        const points = [];
-        for (let i = 0; i < timestamps.length; i++) {
-          if (closes[i] !== null) points.push({ t: timestamps[i], c: closes[i] });
-        }
-        if (points.length < 2) return null;
-
-        const latest = points[points.length - 1];
-        const prevDay = points[points.length - 2];
-
-        const findBefore = (daysAgo) => {
-          const targetTime = latest.t - daysAgo * 86400;
-          let candidate = points[0];
-          for (const p of points) {
-            if (p.t <= targetTime) candidate = p; else break;
-          }
-          return candidate;
-        };
-
-        const pct = (base) => {
-          const chg = ((latest.c - base.c) / base.c) * 100;
-          return (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
-        };
-
-        return {
-          r1d: pct(prevDay),
-          r1w: pct(findBefore(7)),
-          r1m: pct(findBefore(30)),
-          r3m: pct(findBefore(90)),
-          r6m: pct(findBefore(180)),
-          latestPrice: latest.c,
-          latestDate: new Date(latest.t * 1000),
-        };
-      } catch (err) {
-        console.warn('ETF 수익률 계산 실패:', err);
-        return null;
-      }
-    }
-
-    async function inspectEtfDetails(etf) {
-      document.getElementById('inspecting-etf-title').textContent = etf.name;
-      document.getElementById('return-tracker-title').textContent = etf.name;
-
-      // 1) 데모 데이터를 즉시 표시 (실시간 조회를 기다리는 동안 화면이 비지 않도록)
-      renderReturnsGrid(etf.returns, true);
-      renderHoldingsTable(etf.holdings);
-
-      // 2) 실시간 조회 시도 - 사용자가 그 사이 다른 ETF를 선택했으면 덮어쓰지 않음
-      const real = await fetchRealEtfReturns(etf.code);
-      if (real && selectedEtfCode === etf.code) {
-        renderReturnsGrid(real, false);
-      }
-
-      lucide.createIcons();
-    }
-
-    function renderReturnsGrid(returns, isDemo) {
-      const returnsGrid = document.getElementById('returns-grid');
-      const statusLine = isDemo
-        ? `<div class="col-span-5 text-[10px] text-amber-400 mb-1">⚠ 데모 데이터 (실시간 조회 중...)</div>`
-        : `<div class="col-span-5 text-[10px] text-emerald-400 mb-1">● 실시간 조회 성공 (${nowLabel()} 기준)</div>`;
-
-      returnsGrid.innerHTML = statusLine + `
-        <div class="p-2 bg-[#0f172a] rounded border border-slate-800">
-          <div class="text-[10px] text-slate-400 mb-0.5">1일(전일비)</div>
-          <div class="text-xs font-mono font-bold">${formatReturnSpan(returns.r1d)}</div>
-        </div>
-        <div class="p-2 bg-[#0f172a] rounded border border-slate-800">
-          <div class="text-[10px] text-slate-400 mb-0.5">1주(7일)</div>
-          <div class="text-xs font-mono font-bold">${formatReturnSpan(returns.r1w)}</div>
-        </div>
-        <div class="p-2 bg-[#0f172a] rounded border border-slate-800">
-          <div class="text-[10px] text-slate-400 mb-0.5">1개월</div>
-          <div class="text-xs font-mono font-bold">${formatReturnSpan(returns.r1m)}</div>
-        </div>
-        <div class="p-2 bg-[#0f172a] rounded border border-slate-800">
-          <div class="text-[10px] text-slate-400 mb-0.5">3개월</div>
-          <div class="text-xs font-mono font-bold">${formatReturnSpan(returns.r3m)}</div>
-        </div>
-        <div class="p-2 bg-[#0f172a] rounded border border-slate-800">
-          <div class="text-[10px] text-slate-400 mb-0.5">6개월</div>
-          <div class="text-xs font-mono font-bold">${formatReturnSpan(returns.r6m)}</div>
-        </div>
-      `;
-    }
-
-    function renderHoldingsTable(holdings) {
-      const tbody = document.getElementById('holdings-tbody');
-      tbody.innerHTML = holdings.map(h => `
-        <tr class="hover:bg-slate-800/40">
-          <td class="p-2.5 font-medium text-slate-200">${h.name}</td>
-          <td class="p-2.5 text-right font-mono font-bold text-amber-400">${h.weight}</td>
-          <td class="p-2.5 text-right font-medium ${h.color || 'text-emerald-400'}">${h.fit}</td>
-        </tr>
-      `).join('');
     }
 
     function renderAssetDonut(assets) {
       const ctx = document.getElementById('assetChart').getContext('2d');
       if (assetChartObj) assetChartObj.destroy();
-
       assetChartObj = new Chart(ctx, {
         type: 'doughnut',
-        data: {
-          labels: assets.map(a => a.name),
-          datasets: [{
-            data: assets.map(a => a.weight),
-            backgroundColor: assets.map(a => a.color),
-            borderColor: '#0f172a',
-            borderWidth: 2
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          cutout: '72%'
-        }
+        data: { labels: assets.map(a => a.name), datasets: [{ data: assets.map(a => a.weight), backgroundColor: assets.map(a => a.color), borderColor: '#0f172a', borderWidth: 2 }] },
+        options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { display: false } } }
       });
     }
 
     window.addEventListener('DOMContentLoaded', () => {
       runMacroPipeline();
-      // 60초마다 자동 재동기화 (수동 버튼도 그대로 사용 가능)
-      setInterval(runMacroPipeline, 60000);
+      setInterval(runMacroPipeline, 30 * 60 * 1000); // 30분마다 자동 갱신
     });
   </script>
 </body>
